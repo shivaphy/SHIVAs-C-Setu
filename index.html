@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SHIVA's C-SETU · C Programming Student Empowerment & Technology Unit</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root {
+    --bg-deep: #f0f4fa;
+    --bg-card: #ffffff;
+    --bg-surface: #f5f8ff;
+    --bg-surface2: #eaf0fb;
+    --border: #d1ddf5;
+    --border-glow: #2563eb;
+    --accent: #2563eb;
+    --accent2: #0891b2;
+    --accent3: #d97706;
+    --accent-warm: #ea580c;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #7c93b8;
+    --success: #059669;
+    --error: #dc2626;
+    --sidebar-w: 220px;
+    --font-main: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: var(--font-main);
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    background: linear-gradient(90deg, #e8eefb 0%, #f0f4fa 50%, #e8eefb 100%);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    opacity: 0.6;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 0 16px rgba(37,99,235,0.25);
+  }
+  .brand-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand-sub {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--success);
+    font-weight: 500;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity:1; }
+    50% { opacity:0.3; }
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-section-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 16px 14px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    border-radius: 0 6px 6px 0;
+    margin: 1px 6px 1px 0;
+  }
+  .nav-item:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border-left-color: var(--accent);
+  }
+  .nav-item.active {
+    background: rgba(59,130,246,0.12);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    font-size: 9px;
+    background: var(--accent);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 14px;
+  }
+
+  .module-card {
+    margin: 6px 10px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(8,145,178,0.03));
+    border: 1px solid rgba(37,99,235,0.15);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .module-card:hover {
+    border-color: var(--accent);
+    background: rgba(37,99,235,0.08);
+    transform: translateY(-1px);
+  }
+  .module-card.active-module {
+    border-color: var(--accent2);
+    background: rgba(8,145,178,0.07);
+  }
+  .module-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+  .module-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .module-progress {
+    margin-top: 7px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .module-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── WORKSPACE ── */
+  .workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── PANELS ── */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .panel-left {
+    flex: 1;
+    border-right: 1px solid var(--border);
+    min-width: 0;
+  }
+  .panel-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    height: 40px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .panel-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .panel-title-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+  }
+  .panel-actions { display: flex; gap: 6px; }
+  .btn-sm {
+    padding: 4px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    transition: all 0.15s;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .btn-accent:hover { background: #2563eb; border-color: #2563eb; color: white; }
+
+  /* ── READING PANE ── */
+  .reading-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .reading-pane::-webkit-scrollbar { width: 5px; }
+  .reading-pane::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Upload Zone */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(59,130,246,0.03);
+    margin-bottom: 20px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.08);
+  }
+  .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .upload-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+  .upload-sub { font-size: 11px; color: var(--text-muted); }
+  #pdf-file-input { display: none; }
+
+  /* PDF canvas */
+  #pdf-canvas-container { display: none; }
+  #pdf-canvas-container canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .pdf-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Lesson content */
+  .lesson-content { display: none; }
+  .lesson-content.visible { display: block; }
+
+  .lesson-h1 { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-bottom: 14px; line-height: 1.3; }
+  .lesson-h2 { font-size: 15px; font-weight: 700; color: var(--accent2); margin: 20px 0 10px; }
+  .lesson-p { font-size: 13px; color: var(--text-secondary); line-height: 1.75; margin-bottom: 12px; }
+  .lesson-note {
+    background: rgba(217,119,6,0.07);
+    border-left: 3px solid var(--accent3);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: #92400e;
+    margin: 14px 0;
+    line-height: 1.6;
+  }
+  .lesson-note strong { color: var(--accent3); }
+  .lesson-tip {
+    background: rgba(5,150,105,0.07);
+    border-left: 3px solid var(--success);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: #065f46;
+    margin: 14px 0;
+    line-height: 1.6;
+  }
+  .inline-code {
+    font-family: var(--font-mono);
+    background: rgba(37,99,235,0.1);
+    color: #1d4ed8;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .code-block {
+    background: #f8faff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #1e293b;
+    margin: 14px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .kw { color: #7c3aed; }
+  .code-block .fn { color: #1d4ed8; }
+  .code-block .str { color: #16a34a; }
+  .code-block .cm { color: #94a3b8; font-style: italic; }
+  .code-block .pp { color: #c2410c; }
+  .code-block .num { color: #c2410c; }
+  .copy-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: var(--font-main);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .anatomy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .anatomy-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.2s;
+  }
+  .anatomy-card:hover { border-color: var(--accent); }
+  .anatomy-card-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .anatomy-card-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ── CODE EDITOR PANEL ── */
+  .editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .code-editor-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .line-numbers {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 38px;
+    background: #eef2fb;
+    border-right: 1px solid var(--border);
+    padding: 14px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: right;
+    padding-right: 8px;
+    line-height: 1.6;
+    overflow: hidden;
+    user-select: none;
+  }
+  #code-editor {
+    position: absolute;
+    left: 38px; top: 0; right: 0; bottom: 0;
+    background: #fafcff;
+    border: none;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: #1e293b;
+    padding: 14px 14px;
+    line-height: 1.6;
+    resize: none;
+    tab-size: 4;
+    caret-color: var(--accent);
+  }
+  #code-editor::selection { background: rgba(37,99,235,0.15); }
+
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .run-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, var(--success), #059669);
+    border: none;
+    border-radius: 7px;
+    color: white;
+    font-size: 11.5px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+  }
+  .run-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+  .hint-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 7px;
+    color: var(--accent3);
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hint-btn:hover { background: rgba(245,158,11,0.18); }
+  .clear-btn {
+    margin-left: auto;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .clear-btn:hover { border-color: var(--error); color: var(--error); }
+
+  /* Output */
+  .output-pane {
+    height: 130px;
+    background: #f5f8ff;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 12px;
+    background: #eef2fb;
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  #output-text {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #166534;
+    padding: 8px 12px;
+    overflow-y: auto;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  #output-text.error { color: var(--error); }
+  #output-text.info { color: #1d4ed8; }
+
+  /* ── COACH PANEL ── */
+  .coach-panel {
+    width: 300px;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: var(--bg-card);
+  }
+  .coach-header {
+    padding: 10px 14px;
+    background: linear-gradient(90deg, rgba(37,99,235,0.07), rgba(8,145,178,0.05));
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .coach-title {
+    font-size: 13px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2px;
+  }
+  .coach-sub { font-size: 10px; color: var(--text-muted); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    gap: 7px;
+    animation: msg-in 0.2s ease;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .msg-avatar.coach {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .msg-avatar.user {
+    background: rgba(245,158,11,0.2);
+    color: var(--accent3);
+    border: 1px solid rgba(245,158,11,0.3);
+  }
+  .msg-content { flex: 1; min-width: 0; }
+  .msg-sender { font-size: 9.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 3px; letter-spacing: 0.5px; }
+  .msg-bubble {
+    background: #f0f4ff;
+    border: 1px solid var(--border);
+    border-radius: 0 10px 10px 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .msg.user .msg-bubble {
+    background: rgba(37,99,235,0.08);
+    border-color: rgba(37,99,235,0.2);
+    border-radius: 10px 0 10px 10px;
+    color: var(--text-primary);
+  }
+  .msg.coach .msg-bubble { color: var(--text-secondary); }
+  .msg-bubble code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: rgba(37,99,235,0.1);
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #1d4ed8;
+  }
+  .msg-bubble .scaffold-step {
+    margin-top: 6px;
+    padding: 5px 8px;
+    background: rgba(5,150,105,0.07);
+    border-left: 2px solid var(--success);
+    border-radius: 0 5px 5px 0;
+    font-size: 11px;
+    color: #065f46;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    gap: 3px;
+    padding: 4px 0;
+    align-items: center;
+  }
+  .typing-indicator span {
+    width: 5px; height: 5px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* Quick prompts */
+  .quick-prompts {
+    padding: 8px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .qp-btn {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .qp-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Chat input */
+  .chat-input-row {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  #chat-input {
+    flex: 1;
+    background: #f5f8ff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    color: var(--text-primary);
+    outline: none;
+    resize: none;
+    max-height: 80px;
+    transition: border-color 0.15s;
+  }
+  #chat-input:focus { border-color: var(--accent); }
+  #chat-input::placeholder { color: var(--text-muted); }
+  .send-btn {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    align-self: flex-end;
+    transition: all 0.15s;
+  }
+  .send-btn:hover { background: #2563eb; transform: scale(1.05); }
+  .send-btn svg { width: 14px; height: 14px; fill: white; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 6px;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+  .footer span { color: var(--accent); font-weight: 600; }
+
+  /* Tab system */
+  .tab-bar {
+    display: flex;
+    padding: 0 12px;
+    gap: 4px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 8px 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text-secondary); }
+  .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 40px; right: 20px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-primary);
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(37,99,235,0.12);
+    animation: toast-in 0.3s ease, toast-out 0.3s ease 2.5s forwards;
+  }
+  @keyframes toast-in { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+  @keyframes toast-out { to { opacity:0; transform: translateX(20px); } }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .coach-panel { display: none; }
+  }
+  @media (max-width: 650px) {
+    .sidebar { display: none; }
+    .panel-left { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">∑</div>
+    <div>
+      <div class="brand-name">SHIVA's C-SETU</div>
+      <div class="brand-sub">C Programming Student Empowerment & Technology Unit</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      AI Coach Active
+    </div>
+    <div style="color:var(--text-muted);font-size:11px">📚 For Absolute Beginners</div>
+  </div>
+</div>
+
+<!-- MAIN BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="nav-item active" onclick="showModule('getting-started')"><span class="nav-icon">🏠</span>Getting Started</div>
+    <div class="nav-item" onclick="showModule('structure')"><span class="nav-icon">🏗️</span>C Program Structure</div>
+    <div class="nav-item" onclick="showModule('variables')"><span class="nav-icon">📦</span>Variables & Types</div>
+    <div class="nav-item" onclick="showModule('io')"><span class="nav-icon">🖨️</span>Input & Output</div>
+    <div class="nav-item" onclick="showModule('operators')"><span class="nav-icon">➕</span>Operators</div>
+    <div class="nav-item" onclick="showModule('control')"><span class="nav-icon">🔀</span>Control Flow</div>
+    <div class="nav-item" onclick="showModule('loops')"><span class="nav-icon">🔁</span>Loops</div>
+    <div class="nav-item" onclick="showModule('functions')"><span class="nav-icon">⚙️</span>Functions</div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">My Progress</div>
+    <div class="module-card active-module" onclick="showModule('getting-started')">
+      <div class="module-title">🌱 Beginner Path</div>
+      <div class="module-desc">Structure · I/O · Variables</div>
+      <div class="module-progress"><div class="module-progress-bar" id="progress-bar" style="width:15%"></div></div>
+    </div>
+    <div class="module-card" onclick="loadTemplate('hello')">
+      <div class="module-title">📋 Load Template</div>
+      <div class="module-desc">Start with Hello World</div>
+    </div>
+    <div class="module-card" onclick="loadTemplate('calculator')">
+      <div class="module-title">🧮 Mini Calculator</div>
+      <div class="module-desc">Practice with operators</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Upload Notes</div>
+    <div class="nav-item" onclick="document.getElementById('pdf-file-input').click()"><span class="nav-icon">📄</span>Upload PDF Notes <span class="nav-badge">PDF</span></div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- LEFT PANEL: READING + PDF -->
+    <div class="panel panel-left">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-title-dot" style="background:#3b82f6"></div>Learning Zone</div>
+        <div class="panel-actions">
+          <button class="btn-sm" onclick="document.getElementById('pdf-file-input').click()">📄 Upload PDF</button>
+        </div>
+      </div>
+      <input type="file" id="pdf-file-input" accept=".pdf" onchange="loadPDF(event)"/>
+      <div class="tab-bar">
+        <div class="tab active" onclick="switchLeftTab('lesson', this)">📖 Lesson</div>
+        <div class="tab" onclick="switchLeftTab('pdf', this)">📄 PDF Notes</div>
+      </div>
+
+      <!-- LESSON TAB -->
+      <div class="tab-content active" id="tab-lesson">
+        <div class="reading-pane" id="lesson-area">
+          <!-- Lesson content injected by JS -->
+        </div>
+      </div>
+
+      <!-- PDF TAB -->
+      <div class="tab-content" id="tab-pdf">
+        <div class="reading-pane">
+          <div class="upload-zone" id="drop-zone" onclick="document.getElementById('pdf-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="upload-icon">📄</div>
+            <div class="upload-title">Drop your PDF notes here</div>
+            <div class="upload-sub">or click to browse · Supports any C programming PDF</div>
+          </div>
+          <div id="pdf-canvas-container"></div>
+          <div class="pdf-nav" id="pdf-nav" style="display:none">
+            <button class="btn-sm" onclick="changePDFPage(-1)">← Prev</button>
+            <span id="pdf-page-info">Page 1 of 1</span>
+            <button class="btn-sm" onclick="changePDFPage(1)">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: CODE EDITOR -->
+    <div class="panel panel-right">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-title-dot" style="background:#10b981"></div>Code Workspace</div>
+        <div class="panel-actions">
+          <button class="btn-sm" onclick="loadTemplate('hello')">Hello World</button>
+          <button class="btn-sm" onclick="loadTemplate('input')">Input/Output</button>
+          <button class="btn-sm btn-accent" onclick="analyzeCode()">🔍 Analyze</button>
+        </div>
+      </div>
+      <div class="editor-area">
+        <div class="code-editor-wrap">
+          <div class="line-numbers" id="line-numbers">1</div>
+          <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+            oninput="updateLineNumbers(); updateEditorHints()"
+            onkeydown="handleTab(event)"
+            placeholder="// Start writing your C code here...
+// Click 'Hello World' to load a starter template!"># include &lt;stdio.h&gt;
+
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}</textarea>
+        </div>
+        <div class="editor-toolbar">
+          <button class="run-btn" onclick="simulateRun()">▶ Simulate Run</button>
+          <button class="hint-btn" onclick="askForHint()">💡 Get Hint</button>
+          <span style="font-size:10.5px;color:var(--text-muted)">⚠️ Visual simulation only</span>
+          <button class="clear-btn" onclick="clearEditor()">✕ Clear</button>
+        </div>
+        <div class="output-pane">
+          <div class="output-header">
+            <span>📟 Output Console</span>
+            <button class="btn-sm" onclick="clearOutput()" style="padding:2px 7px;font-size:9.5px">Clear</button>
+          </div>
+          <div id="output-text" class="info">// Output will appear here after simulation...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COACH PANEL -->
+    <div class="coach-panel">
+      <div class="coach-header">
+        <div class="coach-title">🧑‍🏫 SHIVA's Coach</div>
+        <div class="coach-sub">Scaffolding AI · Beginner-friendly hints & guidance</div>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="quick-prompts">
+        <button class="qp-btn" onclick="quickPrompt('What is #include?')">What is #include?</button>
+        <button class="qp-btn" onclick="quickPrompt('What does main() do?')">main() purpose?</button>
+        <button class="qp-btn" onclick="quickPrompt('Explain printf')">Explain printf</button>
+        <button class="qp-btn" onclick="quickPrompt('What is a variable?')">Variables?</button>
+        <button class="qp-btn" onclick="quickPrompt('How do I take input?')">Taking input?</button>
+        <button class="qp-btn" onclick="quickPrompt('What is int?')">int type?</button>
+        <button class="qp-btn" onclick="quickPrompt('Fix my code')">Fix my code</button>
+        <button class="qp-btn" onclick="quickPrompt('Next step')">Next step?</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" rows="1" placeholder="Ask SHIVA's Coach anything..." onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" onclick="sendChatMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /workspace -->
+</div><!-- /app-body -->
+
+<div class="footer">
+  Crafted by <span>Dr Shivkumar Math</span> · SHIVA's Digital Ecosystem &nbsp;·&nbsp; C-SETU v1.0 &nbsp;·&nbsp; Empowering Every Learner
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  LESSON CONTENT DATABASE
+// ══════════════════════════════════════════
+const lessons = {
+  'getting-started': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🌱 Welcome to C Programming!</div>
+      <div class="lesson-p">C is one of the oldest and most powerful programming languages in the world. Many modern languages like Python, Java, and JavaScript are built on ideas from C. Don't worry — we'll start from scratch!</div>
+      <div class="lesson-note"><strong>💡 Think of it this way:</strong> A C program is like a recipe. You write instructions, and the computer follows them step by step.</div>
+      <div class="lesson-h2">Why Learn C?</div>
+      <div class="lesson-p">C teaches you how computers really work. It is used in operating systems (like Windows, Linux), embedded devices, microcontrollers, and high-performance applications.</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">⚡ Fast</div><div class="anatomy-card-desc">C programs run very close to the hardware — extremely efficient</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">🎓 Foundation</div><div class="anatomy-card-desc">Learning C makes all other languages easier to understand</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">🔧 Powerful</div><div class="anatomy-card-desc">Direct memory control — you decide how every bit is used</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">🌍 Everywhere</div><div class="anatomy-card-desc">Used in Linux kernel, databases, embedded systems, and more</div></div>
+      </div>
+      <div class="lesson-h2">Your First C Program</div>
+      <div class="lesson-p">Every journey starts with "Hello, World!" — a simple program that displays a message on screen.</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="cm">/* This is a comment - the computer ignores it */</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="fn">printf</span>(<span class="str">"Hello, World!\n"</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-tip">✅ <strong>Try it!</strong> Click "Hello World" button above the code editor and then click "▶ Simulate Run" to see it work.</div>
+      <div class="lesson-h2">Breaking it Down</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">#include &lt;stdio.h&gt;</div><div class="anatomy-card-desc">Loads a "toolbox" of functions for input/output operations</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">int main()</div><div class="anatomy-card-desc">The starting point — every C program MUST have a main function</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">printf("...")</div><div class="anatomy-card-desc">Prints text to the screen. Like telling the computer to "speak"</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">return 0;</div><div class="anatomy-card-desc">Tells the OS the program ended successfully (0 = success)</div></div>
+      </div>
+      <div class="lesson-note"><strong>🖊️ Important:</strong> Every statement in C ends with a semicolon <span class="inline-code">;</span> — just like how sentences end with a period!</div>
+    </div>
+  `,
+  'structure': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🏗️ Anatomy of a C Program</div>
+      <div class="lesson-p">A C program follows a specific structure. Think of it like the blueprint of a building — every part has a purpose and must be in the right place.</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">/* 1. Preprocessor Directives */</span>
+<span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>    <span class="cm">// Standard I/O</span>
+<span class="pp">#include</span> <span class="str">&lt;math.h&gt;</span>     <span class="cm">// Math functions</span>
+
+<span class="cm">/* 2. Global Declarations (optional) */</span>
+<span class="kw">int</span> globalVar = <span class="num">10</span>;
+
+<span class="cm">/* 3. Main Function - Entry Point */</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">/* 4. Local Variables */</span>
+    <span class="kw">int</span> age = <span class="num">20</span>;
+    
+    <span class="cm">/* 5. Statements */</span>
+    <span class="fn">printf</span>(<span class="str">"Age: %d\n"</span>, age);
+    
+    <span class="cm">/* 6. Return Statement */</span>
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-h2">The 6 Structural Layers</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">1. Preprocessor</div><div class="anatomy-card-desc">Lines starting with # — processed BEFORE compilation. Load libraries here.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">2. Global Area</div><div class="anatomy-card-desc">Variables declared here are accessible from any function in the program</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">3. main()</div><div class="anatomy-card-desc">Program execution ALWAYS starts here. It's mandatory in every C program</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">4. Local Vars</div><div class="anatomy-card-desc">Variables declared inside {} — only visible within that block</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">5. Statements</div><div class="anatomy-card-desc">The actual logic — calculations, I/O, decisions, loops. Each ends with ;</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">6. return 0</div><div class="anatomy-card-desc">Signal to the OS that program completed without errors</div></div>
+      </div>
+      <div class="lesson-tip">✅ The curly braces <span class="inline-code">{ }</span> define a <em>block</em> — like walls of a room. Everything inside belongs together.</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Think of a C program like writing a letter: you have the date (includes), addressee (main), body (statements), and signature (return).</div>
+    </div>
+  `,
+  'variables': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">📦 Variables & Data Types</div>
+      <div class="lesson-p">A variable is like a labeled box where you store information. Before using a box, you must tell C what <em>type</em> of data it will hold.</div>
+      <div class="lesson-h2">Common Data Types</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">int</div><div class="anatomy-card-desc">Whole numbers: -2, 0, 42, 1000. No decimals. <br>Size: 4 bytes</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">float</div><div class="anatomy-card-desc">Decimal numbers: 3.14, -0.5, 2.718. <br>Size: 4 bytes, ~6 digits precision</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">double</div><div class="anatomy-card-desc">High-precision decimals. Size: 8 bytes, ~15 digits precision</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">char</div><div class="anatomy-card-desc">Single character: 'A', 'z', '5'. Use single quotes! <br>Size: 1 byte</div></div>
+      </div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> age = <span class="num">20</span>;           <span class="cm">// whole number</span>
+    <span class="kw">float</span> marks = <span class="num">87.5</span>;     <span class="cm">// decimal</span>
+    <span class="kw">char</span> grade = <span class="str">'A'</span>;       <span class="cm">// single character</span>
+    
+    <span class="fn">printf</span>(<span class="str">"Age: %d\n"</span>, age);
+    <span class="fn">printf</span>(<span class="str">"Marks: %.1f\n"</span>, marks);
+    <span class="fn">printf</span>(<span class="str">"Grade: %c\n"</span>, grade);
+    
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-h2">Format Specifiers</div>
+      <div class="lesson-p">When printing with <span class="inline-code">printf</span>, you need to tell C what type of variable you're printing:</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">%d</div><div class="anatomy-card-desc">For int (decimal integers)</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">%f</div><div class="anatomy-card-desc">For float and double</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">%c</div><div class="anatomy-card-desc">For char (single character)</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">%s</div><div class="anatomy-card-desc">For strings (text arrays)</div></div>
+      </div>
+      <div class="lesson-note"><strong>🔑 Remember:</strong> You MUST declare a variable before using it. Think of it like booking a seat before sitting down!</div>
+    </div>
+  `,
+  'io': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🖨️ Input & Output in C</div>
+      <div class="lesson-p">Programs become interactive when they can talk to the user — print messages (output) and read responses (input).</div>
+      <div class="lesson-h2">printf() — Output</div>
+      <div class="lesson-p">Use <span class="inline-code">printf()</span> to display text and values on screen.</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="fn">printf</span>(<span class="str">"Hello!\n"</span>);               <span class="cm">// plain text</span>
+<span class="fn">printf</span>(<span class="str">"Age = %d\n"</span>, age);       <span class="cm">// with variable</span>
+<span class="fn">printf</span>(<span class="str">"%d + %d = %d\n"</span>, a,b,a+b); <span class="cm">// expression</span></div>
+      <div class="lesson-h2">scanf() — Input</div>
+      <div class="lesson-p">Use <span class="inline-code">scanf()</span> to read values typed by the user. Notice the <span class="inline-code">&</span> — it means "address of" and tells scanf where to store the value.</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> num;
+    <span class="fn">printf</span>(<span class="str">"Enter a number: "</span>);
+    <span class="fn">scanf</span>(<span class="str">"%d"</span>, &amp;num);     <span class="cm">// &amp; is IMPORTANT!</span>
+    <span class="fn">printf</span>(<span class="str">"You entered: %d\n"</span>, num);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-tip">✅ The <span class="inline-code">\n</span> inside printf creates a new line — like pressing Enter. Without it, everything prints on the same line.</div>
+      <div class="lesson-note"><strong>💡 Beginner Tip:</strong> Always use <span class="inline-code">&</span> with scanf for basic types (int, float, char). Forgetting & is a very common mistake!</div>
+    </div>
+  `,
+  'operators': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">➕ Operators in C</div>
+      <div class="lesson-p">Operators are symbols that perform operations on variables and values — math, comparison, logic, and more.</div>
+      <div class="lesson-h2">Arithmetic Operators</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">+ Addition</div><div class="anatomy-card-desc">a + b = sum</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">- Subtraction</div><div class="anatomy-card-desc">a - b = difference</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">* Multiply</div><div class="anatomy-card-desc">a * b = product</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">/ Division</div><div class="anatomy-card-desc">a / b = quotient (int division drops decimal!)</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">% Modulus</div><div class="anatomy-card-desc">a % b = remainder. Example: 10 % 3 = 1</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">++ / --</div><div class="anatomy-card-desc">Increment/decrement by 1. a++ means a = a + 1</div></div>
+      </div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> a = <span class="num">10</span>, b = <span class="num">3</span>;
+    <span class="fn">printf</span>(<span class="str">"%d + %d = %d\n"</span>, a, b, a+b);
+    <span class="fn">printf</span>(<span class="str">"%d %% %d = %d\n"</span>, a, b, a%b);  <span class="cm">// remainder</span>
+    <span class="fn">printf</span>(<span class="str">"%d / %d = %d\n"</span>, a, b, a/b);  <span class="cm">// integer division</span>
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-note"><strong>⚠️ Watch out!</strong> In C, <span class="inline-code">10 / 3 = 3</span> (not 3.33!) because both are integers. Use <span class="inline-code">float</span> for decimal results.</div>
+    </div>
+  `,
+  'control': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🔀 Control Flow — if / else</div>
+      <div class="lesson-p">Programs make decisions! The <span class="inline-code">if</span> statement lets the computer choose different paths based on conditions.</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> marks;
+    <span class="fn">printf</span>(<span class="str">"Enter marks: "</span>);
+    <span class="fn">scanf</span>(<span class="str">"%d"</span>, &amp;marks);
+    
+    <span class="kw">if</span> (marks >= <span class="num">90</span>) {
+        <span class="fn">printf</span>(<span class="str">"Grade A - Excellent!\n"</span>);
+    } <span class="kw">else if</span> (marks >= <span class="num">75</span>) {
+        <span class="fn">printf</span>(<span class="str">"Grade B - Good!\n"</span>);
+    } <span class="kw">else if</span> (marks >= <span class="num">60</span>) {
+        <span class="fn">printf</span>(<span class="str">"Grade C - Pass\n"</span>);
+    } <span class="kw">else</span> {
+        <span class="fn">printf</span>(<span class="str">"Fail - Study harder!\n"</span>);
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">== Equal to</div><div class="anatomy-card-desc">a == b (comparison, NOT assignment!)</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">!= Not equal</div><div class="anatomy-card-desc">a != b → true if different</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">&gt; / &lt;</div><div class="anatomy-card-desc">Greater than / Less than</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">&gt;= / &lt;=</div><div class="anatomy-card-desc">Greater/less than or EQUAL</div></div>
+      </div>
+      <div class="lesson-note"><strong>🔑 Gotcha!</strong> Don't confuse <span class="inline-code">==</span> (comparison) with <span class="inline-code">=</span> (assignment). <code>if (a = 5)</code> is a bug! Use <code>if (a == 5)</code></div>
+    </div>
+  `,
+  'loops': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🔁 Loops in C</div>
+      <div class="lesson-p">Loops let you repeat actions. Instead of writing printf 10 times, write it once inside a loop!</div>
+      <div class="lesson-h2">for Loop</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">// Print 1 to 5</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i <= <span class="num">5</span>; i++) {
+    <span class="fn">printf</span>(<span class="str">"%d "</span>, i);
+}
+<span class="cm">// Output: 1 2 3 4 5</span></div>
+      <div class="lesson-h2">while Loop</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="kw">int</span> i = <span class="num">1</span>;
+<span class="kw">while</span> (i <= <span class="num">5</span>) {
+    <span class="fn">printf</span>(<span class="str">"%d "</span>, i);
+    i++;   <span class="cm">// Don't forget this or infinite loop!</span>
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">for loop</div><div class="anatomy-card-desc">Use when you know HOW MANY times to repeat. Best for counting.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">while loop</div><div class="anatomy-card-desc">Use when you repeat UNTIL a condition becomes false.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">do-while</div><div class="anatomy-card-desc">Runs at least once, then checks the condition.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">break / continue</div><div class="anatomy-card-desc">break = exit loop early. continue = skip to next iteration.</div></div>
+      </div>
+      <div class="lesson-note"><strong>⚠️ Infinite Loop:</strong> If you forget to update your counter (like <span class="inline-code">i++</span>), the loop runs forever! The program freezes.</div>
+    </div>
+  `,
+  'functions': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">⚙️ Functions in C</div>
+      <div class="lesson-p">A function is a reusable block of code. Instead of repeating code, put it in a function and call it whenever needed — like a saved recipe!</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+
+<span class="cm">// Function DECLARATION (tell C it exists)</span>
+<span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b);
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> result = <span class="fn">add</span>(<span class="num">5</span>, <span class="num">3</span>);  <span class="cm">// CALL the function</span>
+    <span class="fn">printf</span>(<span class="str">"Sum = %d\n"</span>, result);
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+
+<span class="cm">// Function DEFINITION (the actual code)</span>
+<span class="kw">int</span> <span class="fn">add</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {
+    <span class="kw">return</span> a + b;
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">Return Type</div><div class="anatomy-card-desc">What the function gives back. Use <code>void</code> if nothing returned.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Parameters</div><div class="anatomy-card-desc">Inputs the function receives. Like ingredients for a recipe.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">return</div><div class="anatomy-card-desc">Sends a value back to whoever called the function</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">void</div><div class="anatomy-card-desc">Use when function does something but returns nothing</div></div>
+      </div>
+      <div class="lesson-tip">✅ <strong>Rule of Thumb:</strong> If you're copying and pasting code more than twice — make it a function!</div>
+    </div>
+  `
+};
+
+// ══════════════════════════════════════════
+//  CODE TEMPLATES
+// ══════════════════════════════════════════
+const templates = {
+  hello: `#include <stdio.h>
+
+int main() {
+    // This is my first C program!
+    printf("Hello, World!\\n");
+    printf("I am learning C programming.\\n");
+    return 0;
+}`,
+  input: `#include <stdio.h>
+
+int main() {
+    int age;
+    float marks;
+    
+    printf("Enter your age: ");
+    scanf("%d", &age);
+    
+    printf("Enter your marks: ");
+    scanf("%f", &marks);
+    
+    printf("\\nYour age is: %d years\\n", age);
+    printf("Your marks are: %.2f\\n", marks);
+    
+    return 0;
+}`,
+  calculator: `#include <stdio.h>
+
+int main() {
+    float a, b;
+    char op;
+    
+    printf("Enter first number: ");
+    scanf("%f", &a);
+    
+    printf("Enter operator (+, -, *, /): ");
+    scanf(" %c", &op);
+    
+    printf("Enter second number: ");
+    scanf("%f", &b);
+    
+    printf("\\nResult: %.2f %c %.2f = ", a, op, b);
+    
+    if (op == '+') printf("%.2f\\n", a + b);
+    else if (op == '-') printf("%.2f\\n", a - b);
+    else if (op == '*') printf("%.2f\\n", a * b);
+    else if (op == '/') {
+        if (b != 0) printf("%.2f\\n", a / b);
+        else printf("Error: Division by zero!\\n");
+    } else {
+        printf("Unknown operator!\\n");
+    }
+    
+    return 0;
+}`
+};
+
+// ══════════════════════════════════════════
+//  AI COACH KNOWLEDGE BASE
+// ══════════════════════════════════════════
+const coachKnowledge = {
+  '#include': {
+    response: `Great question! <code>#include</code> is a <strong>preprocessor directive</strong> — it runs before your code compiles.\n\n<div class="scaffold-step">🔹 Step 1: Think of it like importing tools from a toolbox.\n\n<code>#include &lt;stdio.h&gt;</code> loads the Standard Input/Output library — this gives you access to <code>printf</code> and <code>scanf</code>.</div>\n\n<div class="scaffold-step">🔹 Step 2: Without it, printf won't work! Try removing it and see what happens — the compiler will complain.</div>\n\n<strong>Key headers:</strong>\n• <code>stdio.h</code> → printf, scanf\n• <code>math.h</code> → sqrt, pow\n• <code>string.h</code> → string functions`,
+    followup: "Try adding #include <math.h> and using sqrt(16) — what result do you expect?"
+  },
+  'main': {
+    response: `<code>main()</code> is the <strong>entry point</strong> of every C program — execution always starts here!\n\n<div class="scaffold-step">🔹 Think of it like the front door of a building. No matter how many rooms (functions) you have, every visitor enters through the front door first.</div>\n\n<strong>The full signature:</strong>\n<code>int main()</code> — the <code>int</code> means it returns an integer (0 for success, non-zero for error)\n\n<strong>Return values:</strong>\n• <code>return 0;</code> → Program succeeded ✅\n• <code>return 1;</code> → Something went wrong ❌`,
+    followup: "Can you write a main() function that prints your name?"
+  },
+  'printf': {
+    response: `<code>printf</code> stands for <strong>Print Formatted</strong> — it prints text and values to the screen.\n\n<div class="scaffold-step">🔹 Basic Syntax:\n<code>printf("text");</code>\n<code>printf("value: %d", variable);</code></div>\n\n<div class="scaffold-step">🔹 Format Specifiers:\n• <code>%d</code> → integers\n• <code>%f</code> → floats\n• <code>%c</code> → characters\n• <code>%s</code> → strings</div>\n\n<div class="scaffold-step">🔹 Escape Sequences:\n• <code>\\n</code> → new line\n• <code>\\t</code> → tab space\n• <code>\\\\</code> → backslash</div>`,
+    followup: "Try: printf(\"%d + %d = %d\", 5, 3, 5+3); — what do you think it prints?"
+  },
+  'variable': {
+    response: `A <strong>variable</strong> is a named storage location in memory — like a labeled box!\n\n<div class="scaffold-step">🔹 Step 1 - Declare: Tell C what type of data\n<code>int age;</code>       ← empty box, type = int\n<code>float marks;</code>   ← empty box, type = float</div>\n\n<div class="scaffold-step">🔹 Step 2 - Initialize: Put a value in the box\n<code>age = 20;</code>\n<code>marks = 87.5;</code></div>\n\n<div class="scaffold-step">🔹 Step 3 - Use: Use the variable\n<code>printf("Age: %d", age);</code></div>\n\n<strong>Or combine steps 1 & 2:</strong>\n<code>int age = 20;</code>`,
+    followup: "Can you declare 3 variables: your name (as a char array), age (int), and GPA (float)?"
+  },
+  'input': {
+    response: `To take input from the user in C, use <code>scanf()</code>!\n\n<div class="scaffold-step">🔹 Basic Pattern:\n<code>scanf("%d", &variable);</code>\n\nThe <code>&</code> (ampersand) means "address of" — it tells scanf WHERE in memory to store the value.</div>\n\n<div class="scaffold-step">🔹 Common Mistake: Forgetting the & !\n❌ <code>scanf("%d", age);</code>   ← WRONG\n✅ <code>scanf("%d", &age);</code>  ← CORRECT</div>\n\n<div class="scaffold-step">🔹 Full Example:\n<code>int n;\nprintf("Enter a number: ");\nscanf("%d", &n);\nprintf("You entered: %d", n);</code></div>`,
+    followup: "Try writing a program that asks the user for two numbers and prints their sum!"
+  },
+  'int': {
+    response: `<code>int</code> is a data type for <strong>whole numbers</strong> (integers) — no decimal points!\n\n<div class="scaffold-step">🔹 Range: approximately -2 billion to +2 billion\nSize: 4 bytes (32 bits)</div>\n\n<div class="scaffold-step">🔹 Examples:\n<code>int age = 20;</code>\n<code>int count = 0;</code>\n<code>int temperature = -5;</code>\n<code>int score = 100;</code></div>\n\n<strong>Other integer types:</strong>\n• <code>short int</code> → smaller range, 2 bytes\n• <code>long int</code> → bigger range, 8 bytes\n• <code>unsigned int</code> → only positive numbers`,
+    followup: "What would happen if you store 3.14 in an int variable? Try it!"
+  },
+  'fix': {
+    response: `Let me help you debug! 🔍 Share what error you're seeing or paste your code, and I'll guide you through fixing it step by step.\n\n<div class="scaffold-step">🔹 Common C Errors:\n• Missing semicolon <code>;</code>\n• Forgetting <code>&</code> in scanf\n• Using <code>=</code> instead of <code>==</code>\n• Undeclared variable\n• Missing <code>#include</code></div>\n\n<div class="scaffold-step">🔹 My Debugging Strategy:\n1. Read the error message carefully\n2. Find the line number mentioned\n3. Look at that line and the one before it\n4. Fix one error at a time</div>`,
+    followup: "Click '🔍 Analyze' to let me check your current code!"
+  },
+  'next': {
+    response: `Great attitude — always keep moving forward! 🚀\n\n<div class="scaffold-step">🔹 Based on your progress, here's your learning path:\n1. ✅ Hello World → Done!\n2. 📦 Variables & Types\n3. 🖨️ printf & scanf\n4. 🔀 if / else conditions\n5. 🔁 for loops\n6. ⚙️ Functions</div>\n\nClick on any topic in the <strong>left sidebar</strong> to jump to that lesson.\n\nOr click <strong>'Load Template'</strong> in the sidebar to practice with a real example!`,
+    followup: "Which topic would you like to explore next?"
+  }
+};
+
+// ══════════════════════════════════════════
+//  SCAFFOLD HINTS BY CODE ANALYSIS
+// ══════════════════════════════════════════
+function analyzeCodeForHints(code) {
+  const hints = [];
+  if (!code.includes('#include')) hints.push({ type: 'error', msg: '🔴 Missing #include — you need at least #include <stdio.h> to use printf/scanf.' });
+  if (!code.includes('main')) hints.push({ type: 'error', msg: '🔴 No main() function found — every C program needs int main() { ... }' });
+  if (code.includes('printf') && !code.includes('#include <stdio.h>') && !code.includes('#include<stdio.h>')) {
+    hints.push({ type: 'warning', msg: '⚠️ You used printf but #include <stdio.h> is missing or misspelled.' });
+  }
+  if (code.includes('scanf') && !code.includes('&')) hints.push({ type: 'warning', msg: '⚠️ Using scanf without & is a common mistake. Check: scanf("%d", &variable);' });
+  const lines = code.split('\n');
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('//') && !trimmed.startsWith('/*') && !trimmed.startsWith('*') && !trimmed.endsWith('{') && !trimmed.endsWith('}') && !trimmed.endsWith(';') && trimmed.length > 2 && !trimmed.startsWith('#') && !trimmed.startsWith('int main') && !trimmed.startsWith('void ') && !trimmed.startsWith('int ') && !trimmed.startsWith('float ') && !trimmed.startsWith('char ') && !trimmed.startsWith('double ')) {
+      // skip — too many false positives
+    }
+  });
+  if (code.includes('if') && code.includes('=') && !code.includes('==')) hints.push({ type: 'warning', msg: '⚠️ In an if condition, use == (double equals) for comparison, not = (single equals for assignment).' });
+  if (hints.length === 0) hints.push({ type: 'success', msg: '✅ Code structure looks good! Ready to practice logic inside the functions.' });
+  return hints;
+}
+
+// ══════════════════════════════════════════
+//  SIMULATE RUN
+// ══════════════════════════════════════════
+function simulateRun() {
+  const code = document.getElementById('code-editor').value;
+  const out = document.getElementById('output-text');
+  out.className = '';
+
+  // Extract printf strings
+  const lines = [];
+  const printfRegex = /printf\s*\(\s*"((?:[^"\\]|\\.)*)"\s*(?:,\s*([^)]+))?\)/g;
+  let match;
+  let found = false;
+
+  while ((match = printfRegex.exec(code)) !== null) {
+    found = true;
+    let str = match[1];
+    const args = match[2] ? match[2].split(',').map(s => s.trim()) : [];
+
+    str = str.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\\\/g, '\\');
+
+    // Replace format specifiers
+    let argIdx = 0;
+    str = str.replace(/%[diouxXeEfgGcs%]/g, (spec) => {
+      if (spec === '%%') return '%';
+      const arg = args[argIdx++] || '?';
+      // Try to evaluate simple expressions
+      try {
+        const val = evaluateExpr(arg, code);
+        return val !== null ? val : arg;
+      } catch(e) { return arg; }
+    });
+
+    lines.push(str);
+  }
+
+  if (!found) {
+    if (!code.includes('printf')) {
+      out.className = 'info';
+      out.textContent = '// No printf statements found in your code.\n// Add printf("Hello!\\n"); to see output here.';
+    } else {
+      out.className = '';
+      out.textContent = '(program ran — no output captured in simulation)';
+    }
+    return;
+  }
+
+  const hasError = !code.includes('main') || !code.includes('#include');
+  if (hasError) {
+    out.className = 'error';
+    out.textContent = '❌ Error: Missing #include or main() function.\nFix the structure and try again.';
+    return;
+  }
+
+  out.className = '';
+  out.textContent = lines.join('');
+  if (!out.textContent.trim()) out.textContent = '(program ran silently)';
+
+  // Add to coach
+  addCoachMessage("Nice! Your program ran. Check the output below. Does it match what you expected? If not, I can help you understand why!", 'coach');
+}
+
+function evaluateExpr(expr, code) {
+  // Try to find variable declarations
+  const varMap = {};
+  const declRegex = /(?:int|float|double|char)\s+(\w+)\s*=\s*([^;]+);/g;
+  let m;
+  while ((m = declRegex.exec(code)) !== null) {
+    try { varMap[m[1]] = eval(m[2]); } catch(e) {}
+  }
+  // Replace vars in expr
+  let evExpr = expr;
+  for (const [k, v] of Object.entries(varMap)) {
+    evExpr = evExpr.replace(new RegExp('\\b' + k + '\\b', 'g'), v);
+  }
+  try {
+    const val = eval(evExpr);
+    if (typeof val === 'number') return Number.isInteger(val) ? val : val.toFixed(2);
+    return val;
+  } catch(e) { return null; }
+}
+
+// ══════════════════════════════════════════
+//  COACH CHAT
+// ══════════════════════════════════════════
+function addMessage(content, role) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const isCoach = role === 'coach';
+  div.innerHTML = `
+    <div class="msg-avatar ${role}">${isCoach ? '🎓' : '👤'}</div>
+    <div class="msg-content">
+      <div class="msg-sender">${isCoach ? "SHIVA's Coach" : 'You'}</div>
+      <div class="msg-bubble">${content}</div>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addCoachMessage(content, role = 'coach') {
+  // Show typing indicator first
+  const container = document.getElementById('chat-messages');
+  const typing = document.createElement('div');
+  typing.className = 'msg coach';
+  typing.id = 'typing-indicator';
+  typing.innerHTML = `
+    <div class="msg-avatar coach">🎓</div>
+    <div class="msg-content">
+      <div class="msg-sender">SHIVA's Coach</div>
+      <div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>
+    </div>
+  `;
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+
+  setTimeout(() => {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+    addMessage(content, 'coach');
+  }, 700 + Math.random() * 500);
+}
+
+function getCoachResponse(query) {
+  const q = query.toLowerCase();
+  for (const [key, val] of Object.entries(coachKnowledge)) {
+    if (q.includes(key)) {
+      return val.response + (val.followup ? `\n\n<em style="color:var(--accent3);font-size:11px">💭 Think about it: ${val.followup}</em>` : '');
+    }
+  }
+  // Generic scaffolding responses
+  if (q.includes('error') || q.includes('wrong') || q.includes('help')) {
+    return `I'm here to help! 🤝\n\n<div class="scaffold-step">🔹 Let's debug together:\n1. What were you trying to do?\n2. What did you expect to happen?\n3. What actually happened?</div>\n\nPaste your code or click <strong>🔍 Analyze</strong> and I'll guide you step by step!`;
+  }
+  if (q.includes('loop') || q.includes('for') || q.includes('while') || q.includes('repeat')) {
+    return coachKnowledge['next'].response.replace('your progress', 'loops topic') + `\n\n<div class="scaffold-step">Check the <strong>🔁 Loops</strong> section in the sidebar!</div>`;
+  }
+  if (q.includes('function') || q.includes('def')) {
+    return `<strong>Functions</strong> in C are reusable blocks of code!\n\n<div class="scaffold-step">🔹 Structure:\n<code>returnType functionName(parameters) {\n    // code\n    return value;\n}</code></div>\n\nCheck the <strong>⚙️ Functions</strong> lesson in the sidebar for detailed examples!`;
+  }
+  if (q.includes('struct') || q.includes('array') || q.includes('pointer')) {
+    return `That's a more advanced topic — great that you're curious! 🌟\n\n<div class="scaffold-step">🔹 Learning path recommendation:\nMake sure you're comfortable with:\n✅ Variables & Types\n✅ printf & scanf\n✅ if/else\n✅ Loops\n...before diving into arrays/structs/pointers</div>\n\nWhich of those do you want to solidify first?`;
+  }
+  return `Good question! 🤔 Let me scaffold your thinking:\n\n<div class="scaffold-step">🔹 Ask yourself:\n• What do you already know about this?\n• What part is confusing you?\n• Have you tried writing any code for this?</div>\n\nTry to write something — even if it's wrong, I'll help you fix it! That's how real learning happens. 💪\n\nOr use the quick-prompt buttons above for common topics!`;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  addMessage(msg, 'user');
+  input.value = '';
+  const response = getCoachResponse(msg);
+  addCoachMessage(response);
+}
+
+function quickPrompt(text) {
+  addMessage(text, 'user');
+  const response = getCoachResponse(text);
+  addCoachMessage(response);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function askForHint() {
+  const code = document.getElementById('code-editor').value;
+  const hints = analyzeCodeForHints(code);
+  let msg = '💡 Here are my observations about your code:\n\n';
+  hints.forEach(h => msg += h.msg + '\n\n');
+  msg += '<div class="scaffold-step">🔹 Next step: Fix the issues above one by one. Start from the top!</div>';
+  addCoachMessage(msg);
+}
+
+function analyzeCode() {
+  const code = document.getElementById('code-editor').value;
+  const hints = analyzeCodeForHints(code);
+  let out = '';
+  hints.forEach(h => out += h.msg + '\n');
+  const outputEl = document.getElementById('output-text');
+  outputEl.className = hints.some(h => h.type === 'error') ? 'error' : hints.some(h => h.type === 'warning') ? 'info' : '';
+  outputEl.textContent = '🔍 Code Analysis:\n' + out;
+
+  const msg = hints.map(h => h.msg).join('\n\n');
+  addCoachMessage(`I've analyzed your code! Here's what I found:\n\n${msg}\n\n<div class="scaffold-step">🔹 Work through these one by one. Which one do you want to tackle first?</div>`);
+}
+
+// ══════════════════════════════════════════
+//  EDITOR UTILITIES
+// ══════════════════════════════════════════
+function updateLineNumbers() {
+  const editor = document.getElementById('code-editor');
+  const lines = editor.value.split('\n');
+  const ln = document.getElementById('line-numbers');
+  ln.innerHTML = lines.map((_, i) => i + 1).join('<br>');
+}
+
+function handleTab(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const editor = document.getElementById('code-editor');
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + 4;
+    updateLineNumbers();
+  }
+}
+
+function updateEditorHints() {
+  // live feedback could go here
+}
+
+function loadTemplate(name) {
+  if (templates[name]) {
+    document.getElementById('code-editor').value = templates[name];
+    updateLineNumbers();
+    showToast('Template loaded! ▶ Click Simulate Run to test it.');
+    addCoachMessage(`Great choice! I've loaded the <strong>${name}</strong> template. Read through it carefully — can you explain what each line does? Ask me about any part you don't understand! 🎯`);
+  }
+}
+
+function clearEditor() {
+  if (confirm('Clear the code editor?')) {
+    document.getElementById('code-editor').value = '';
+    updateLineNumbers();
+    clearOutput();
+  }
+}
+
+function clearOutput() {
+  const o = document.getElementById('output-text');
+  o.className = 'info';
+  o.textContent = '// Output cleared...';
+}
+
+// ══════════════════════════════════════════
+//  MODULE / LESSON NAVIGATION
+// ══════════════════════════════════════════
+let visitedModules = new Set(['getting-started']);
+
+function showModule(name) {
+  visitedModules.add(name);
+  const area = document.getElementById('lesson-area');
+  area.innerHTML = lessons[name] || `<div class="lesson-p">Lesson coming soon! 🚧</div>`;
+
+  // Update progress
+  const progress = Math.min(100, Math.round((visitedModules.size / Object.keys(lessons).length) * 100));
+  document.getElementById('progress-bar').style.width = progress + '%';
+
+  // Update nav active
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(el => { if (el.textContent.trim().toLowerCase().includes(name.replace('-', ' ').toLowerCase())) el.classList.add('active'); });
+
+  // Switch to lesson tab
+  switchLeftTab('lesson', document.querySelector('.tab.active'));
+
+  showToast(`Loaded: ${name.replace('-', ' ')} lesson`);
+}
+
+// ══════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════
+function switchLeftTab(tabName, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const tc = document.getElementById('tab-' + tabName);
+  if (tc) tc.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  PDF HANDLING
+// ══════════════════════════════════════════
+let pdfDoc = null, pdfPage = 1, pdfTotal = 1;
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+function loadPDF(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    pdfjsLib.getDocument({ data }).promise.then(pdf => {
+      pdfDoc = pdf;
+      pdfTotal = pdf.numPages;
+      pdfPage = 1;
+      document.getElementById('drop-zone').style.display = 'none';
+      renderPDFPage(pdfPage);
+      // Switch to PDF tab
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      tabs[1] && tabs[1].classList.add('active');
+      document.getElementById('tab-lesson').classList.remove('active');
+      document.getElementById('tab-pdf').classList.add('active');
+      document.getElementById('pdf-nav').style.display = 'flex';
+      showToast(`PDF loaded: ${pdf.numPages} pages`);
+      addCoachMessage(`I see you've uploaded a PDF! 📄 That's great — use it alongside the lessons. If you find any C code examples in the PDF, try typing them in the code editor and running them. Learning by doing is the best way! 💡`);
+    }).catch(err => {
+      showToast('Error loading PDF: ' + err.message);
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderPDFPage(num) {
+  pdfDoc.getPage(num).then(page => {
+    const container = document.getElementById('pdf-canvas-container');
+    container.style.display = 'block';
+    const existingCanvas = container.querySelector('canvas');
+    const canvas = existingCanvas || document.createElement('canvas');
+    if (!existingCanvas) container.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    const viewport = page.getViewport({ scale: 1.4 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+      document.getElementById('pdf-page-info').textContent = `Page ${num} of ${pdfTotal}`;
+    });
+  });
+}
+
+function changePDFPage(delta) {
+  const newPage = pdfPage + delta;
+  if (newPage >= 1 && newPage <= pdfTotal) {
+    pdfPage = newPage;
+    renderPDFPage(pdfPage);
+  }
+}
+
+function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function handleDragLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    loadPDF({ target: { files: [file] } });
+  } else {
+    showToast('Please drop a PDF file.');
+  }
+}
+
+// ══════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copy', '').replace('Copied!', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+    // Load into editor
+    document.getElementById('code-editor').value = text;
+    updateLineNumbers();
+    showToast('Code copied & loaded into editor!');
+  });
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+// ══════════════════════════════════════════
+//  INITIALIZATION
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Load first lesson
+  showModule('getting-started');
+  updateLineNumbers();
+
+  // Welcome message
+  setTimeout(() => {
+    addCoachMessage(`👋 <strong>Welcome to SHIVA's C-SETU!</strong>\n\nI'm your Scaffolding Coach — I'm here to give you <em>just enough help</em> to figure things out yourself (that's how real learning works! 🧠)\n\n<div class="scaffold-step">🔹 Here's your starting mission:\n1. Read the "Getting Started" lesson on the left\n2. Load the "Hello World" template\n3. Click "▶ Simulate Run"\n4. Ask me anything you don't understand!</div>\n\nReady? Let's begin! 🚀`);
+  }, 500);
+});
+</script>
+</body>
+</html>
