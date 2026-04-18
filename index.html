@@ -868,16 +868,26 @@
     <div class="nav-item" onclick="showModule('control')"><span class="nav-icon">🔀</span>Control Flow</div>
     <div class="nav-item" onclick="showModule('loops')"><span class="nav-icon">🔁</span>Loops</div>
     <div class="nav-item" onclick="showModule('functions')"><span class="nav-icon">⚙️</span>Functions</div>
+    <div class="sidebar-section-label" style="margin-top:6px">Intermediate</div>
+    <div class="nav-item" onclick="showModule('arrays')"><span class="nav-icon">📊</span>Arrays <span class="nav-badge">New</span></div>
+    <div class="nav-item" onclick="showModule('strings')"><span class="nav-icon">🔤</span>Strings <span class="nav-badge">New</span></div>
+    <div class="nav-item" onclick="showModule('pointers')"><span class="nav-icon">🎯</span>Pointers <span class="nav-badge">New</span></div>
+    <div class="nav-item" onclick="showModule('structures')"><span class="nav-icon">🏛️</span>Structures <span class="nav-badge">New</span></div>
+    <div class="nav-item" onclick="showModule('filehandling')"><span class="nav-icon">🗂️</span>File Handling <span class="nav-badge">New</span></div>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-label">My Progress</div>
     <div class="module-card active-module" onclick="showModule('getting-started')">
       <div class="module-title">🌱 Beginner Path</div>
-      <div class="module-desc">Structure · I/O · Variables</div>
+      <div class="module-desc">Structure · I/O · Variables · Loops</div>
       <div class="module-progress"><div class="module-progress-bar" id="progress-bar" style="width:15%"></div></div>
     </div>
-    <div class="module-card" onclick="loadTemplate('hello')">
-      <div class="module-title">📋 Load Template</div>
-      <div class="module-desc">Start with Hello World</div>
+    <div class="module-card" onclick="loadTemplate('arrays')">
+      <div class="module-title">📊 Arrays Template</div>
+      <div class="module-desc">Practice with arrays & loops</div>
+    </div>
+    <div class="module-card" onclick="loadTemplate('pointers')">
+      <div class="module-title">🎯 Pointers Template</div>
+      <div class="module-desc">Explore memory addresses</div>
     </div>
     <div class="module-card" onclick="loadTemplate('calculator')">
       <div class="module-title">🧮 Mini Calculator</div>
@@ -983,7 +993,11 @@ int main() {
         <button class="qp-btn" onclick="quickPrompt('Explain printf')">Explain printf</button>
         <button class="qp-btn" onclick="quickPrompt('What is a variable?')">Variables?</button>
         <button class="qp-btn" onclick="quickPrompt('How do I take input?')">Taking input?</button>
-        <button class="qp-btn" onclick="quickPrompt('What is int?')">int type?</button>
+        <button class="qp-btn" onclick="quickPrompt('Explain arrays in C')">Arrays?</button>
+        <button class="qp-btn" onclick="quickPrompt('Explain strings in C')">Strings?</button>
+        <button class="qp-btn" onclick="quickPrompt('What is a pointer?')">Pointers?</button>
+        <button class="qp-btn" onclick="quickPrompt('What is a struct?')">Structures?</button>
+        <button class="qp-btn" onclick="quickPrompt('How does file handling work?')">File I/O?</button>
         <button class="qp-btn" onclick="quickPrompt('Fix my code')">Fix my code</button>
         <button class="qp-btn" onclick="quickPrompt('Next step')">Next step?</button>
       </div>
@@ -1240,6 +1254,241 @@ const lessons = {
       </div>
       <div class="lesson-tip">✅ <strong>Rule of Thumb:</strong> If you're copying and pasting code more than twice — make it a function!</div>
     </div>
+  `,
+  'arrays': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">📊 Arrays in C</div>
+      <div class="lesson-p">An array is a collection of variables of the <em>same type</em> stored in contiguous (side-by-side) memory locations, all under one name. Instead of creating 50 separate variables, create one array!</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Think of an array like a row of numbered lockers in a school. All lockers look the same, they're numbered starting from 0, and you access any locker by its number (index). The locker block is the array; each locker is an element.</div>
+      <div class="lesson-h2">Declaring and Initialising</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">// Syntax: type arrayName[size];</span>
+<span class="kw">int</span> marks[<span class="num">5</span>];                        <span class="cm">// 5 empty int slots</span>
+<span class="kw">int</span> scores[<span class="num">5</span>] = {<span class="num">90</span>, <span class="num">85</span>, <span class="num">78</span>, <span class="num">92</span>, <span class="num">88</span>}; <span class="cm">// initialise at once</span>
+<span class="kw">float</span> temps[] = {<span class="num">36.5</span>, <span class="num">37.0</span>, <span class="num">36.8</span>};   <span class="cm">// size auto-deduced</span></div>
+      <div class="lesson-h2">Accessing Elements — Index Starts at 0!</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> scores[<span class="num">5</span>] = {<span class="num">90</span>, <span class="num">85</span>, <span class="num">78</span>, <span class="num">92</span>, <span class="num">88</span>};
+    <span class="fn">printf</span>(<span class="str">"First score : %d\n"</span>, scores[<span class="num">0</span>]);  <span class="cm">// 90</span>
+    <span class="fn">printf</span>(<span class="str">"Third score : %d\n"</span>, scores[<span class="num">2</span>]);  <span class="cm">// 78</span>
+    <span class="fn">printf</span>(<span class="str">"Last score  : %d\n"</span>, scores[<span class="num">4</span>]);  <span class="cm">// 88</span>
+
+    <span class="cm">// Loop through all elements</span>
+    <span class="kw">int</span> sum = <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+        sum += scores[i];
+        <span class="fn">printf</span>(<span class="str">"scores[%d] = %d\n"</span>, i, scores[i]);
+    }
+    <span class="fn">printf</span>(<span class="str">"Total = %d\n"</span>, sum);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">scores[0]</div><div class="anatomy-card-desc">First element — C always counts from ZERO, not one. This trips up every beginner!</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">scores[4]</div><div class="anatomy-card-desc">Last element of a 5-element array. Index = size − 1.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Array + Loop</div><div class="anatomy-card-desc">The perfect duo — use a for loop to visit every element one by one.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Out of Bounds</div><div class="anatomy-card-desc">Accessing scores[5] on a 5-element array is UNDEFINED — it can crash the program!</div></div>
+      </div>
+      <div class="lesson-h2">2D Arrays — Tables of Data</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">// 3 students, 3 subjects each — a 3×3 grid</span>
+<span class="kw">int</span> marks[<span class="num">3</span>][<span class="num">3</span>] = {
+    {<span class="num">80</span>, <span class="num">90</span>, <span class="num">75</span>},   <span class="cm">// student 0</span>
+    {<span class="num">70</span>, <span class="num">85</span>, <span class="num">95</span>},   <span class="cm">// student 1</span>
+    {<span class="num">60</span>, <span class="num">78</span>, <span class="num">88</span>}    <span class="cm">// student 2</span>
+};
+<span class="fn">printf</span>(<span class="str">"Student 1, Subject 2: %d\n"</span>, marks[<span class="num">1</span>][<span class="num">2</span>]); <span class="cm">// 95</span></div>
+      <div class="lesson-tip">✅ <strong>Try it!</strong> Load the Arrays template, change the values in the array, and observe how the sum changes when you Simulate Run.</div>
+      <div class="lesson-note"><strong>⚠️ Remember:</strong> You cannot change the size of an array after declaring it. For flexible sizes, you need dynamic memory allocation (advanced topic).</div>
+    </div>
+  `,
+  'strings': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🔤 Strings in C</div>
+      <div class="lesson-p">C does NOT have a built-in string type like Python or Java. In C, a <strong>string is an array of characters</strong> that ends with a special null character <span class="inline-code">'\0'</span> (called the null terminator). This sentinel tells C where the string ends.</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Imagine writing a letter and marking the end with "Iti" (ಇತಿ / इति — meaning "end"). The null character <code>'\0'</code> is exactly that — it tells C "the string stops here." Without it, C would keep reading memory endlessly!</div>
+      <div class="lesson-h2">Declaring Strings</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">// Method 1: char array with explicit size</span>
+<span class="kw">char</span> name[<span class="num">20</span>] = <span class="str">"Shivakumar"</span>;  <span class="cm">// occupies 10 chars + '\0'</span>
+
+<span class="cm">// Method 2: let compiler count</span>
+<span class="kw">char</span> city[] = <span class="str">"Belagavi"</span>;     <span class="cm">// size = 9 (8 letters + '\0')</span>
+
+<span class="cm">// Method 3: read from user</span>
+<span class="kw">char</span> input[<span class="num">50</span>];
+<span class="fn">scanf</span>(<span class="str">"%s"</span>, input);  <span class="cm">// NO & needed for char arrays!</span></div>
+      <div class="lesson-h2">String Functions — #include &lt;string.h&gt;</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">strlen(s)</div><div class="anatomy-card-desc">Returns the <em>length</em> of string s — does not count '\0'. Like counting letters in a word.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">strcpy(d, s)</div><div class="anatomy-card-desc">Copies string s into d. You cannot use = to copy strings — this is a common trap!</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">strcat(d, s)</div><div class="anatomy-card-desc">Appends s to the end of d. Like joining two words together (concatenation).</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">strcmp(a, b)</div><div class="anatomy-card-desc">Compares two strings. Returns 0 if equal. Do NOT use == to compare strings in C!</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">strupr / strlwr</div><div class="anatomy-card-desc">Converts to UPPERCASE or lowercase (compiler-specific, may need manual loop on Linux).</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">gets / fgets</div><div class="anatomy-card-desc">Read a full line with spaces. Prefer <code>fgets(s, 50, stdin)</code> — safer than gets().</div></div>
+      </div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">char</span> first[<span class="num">20</span>] = <span class="str">"Hello"</span>;
+    <span class="kw">char</span> second[<span class="num">20</span>] = <span class="str">" World"</span>;
+
+    <span class="fn">printf</span>(<span class="str">"Length of first: %lu\n"</span>, <span class="fn">strlen</span>(first));  <span class="cm">// 5</span>
+    <span class="fn">strcat</span>(first, second);
+    <span class="fn">printf</span>(<span class="str">"After strcat: %s\n"</span>, first);              <span class="cm">// Hello World</span>
+
+    <span class="kw">if</span> (<span class="fn">strcmp</span>(first, <span class="str">"Hello World"</span>) == <span class="num">0</span>)
+        <span class="fn">printf</span>(<span class="str">"Strings are equal!\n"</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-tip">✅ Use <span class="inline-code">%s</span> in printf to print a string, and <span class="inline-code">%c</span> to print one character at a time.</div>
+      <div class="lesson-note"><strong>⚠️ Trap Alert:</strong> <code>char name[5] = "Shiva";</code> is WRONG — there's no space for '\0'. Always declare size as (length + 1) at minimum.</div>
+    </div>
+  `,
+  'pointers': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🎯 Pointers in C</div>
+      <div class="lesson-p">A pointer is a variable that stores the <strong>memory address</strong> of another variable — not the value itself, but the <em>location</em> where the value lives. Pointers are the most powerful (and most feared!) feature of C.</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Imagine you have a house (variable) with an address "123, MG Road" (memory address). A pointer is like a <em>chit of paper with the house address written on it</em>. The chit isn't the house — but by reading the chit, you can find and visit the house. <code>&variable</code> gives you the address; <code>*pointer</code> takes you to that address.</div>
+      <div class="lesson-h2">Key Operators</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">&amp; (Address-of)</div><div class="anatomy-card-desc"><code>&x</code> gives the memory address of variable x. Like reading the address label on a box.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">* (Dereference)</div><div class="anatomy-card-desc"><code>*p</code> gives the value stored AT the address p holds. Like opening the box at the address.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">int *p</div><div class="anatomy-card-desc">Declares p as a pointer to int. The * here is part of the type, not an operator.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">NULL pointer</div><div class="anatomy-card-desc">A pointer that points to nothing. Always initialise pointers — never leave them unassigned!</div></div>
+      </div>
+      <div class="lesson-h2">Step-by-Step: Your First Pointer</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> age = <span class="num">21</span>;          <span class="cm">// Step 1: normal variable</span>
+    <span class="kw">int</span> *p = &amp;age;         <span class="cm">// Step 2: pointer holds address of age</span>
+
+    <span class="fn">printf</span>(<span class="str">"Value of age   : %d\n"</span>, age);   <span class="cm">// 21</span>
+    <span class="fn">printf</span>(<span class="str">"Address of age : %p\n"</span>, &amp;age);  <span class="cm">// e.g. 0x7ffd...</span>
+    <span class="fn">printf</span>(<span class="str">"p holds address: %p\n"</span>, p);    <span class="cm">// same address</span>
+    <span class="fn">printf</span>(<span class="str">"Value via *p   : %d\n"</span>, *p);   <span class="cm">// 21 (dereferenced)</span>
+
+    *p = <span class="num">25</span>;  <span class="cm">// change age THROUGH the pointer</span>
+    <span class="fn">printf</span>(<span class="str">"age after *p=25: %d\n"</span>, age);  <span class="cm">// 25!</span>
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-h2">Why Are Pointers Useful?</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">Pass by Reference</div><div class="anatomy-card-desc">Functions can modify the original variable by receiving its address instead of a copy.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Arrays</div><div class="anatomy-card-desc">Array name is itself a pointer to the first element. arr[i] is the same as *(arr + i).</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Dynamic Memory</div><div class="anatomy-card-desc">malloc() and free() need pointers to allocate and release heap memory at runtime.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Data Structures</div><div class="anatomy-card-desc">Linked lists, trees, and graphs are built entirely using pointers connecting nodes.</div></div>
+      </div>
+      <div class="lesson-tip">✅ <strong>Load the Pointers template</strong> to see address printing live in the simulator. Notice how changing a value through a pointer updates the original variable!</div>
+      <div class="lesson-note"><strong>⚠️ Danger Zone:</strong> A <em>dangling pointer</em> points to memory that has been freed. A <em>wild pointer</em> is never initialised. Both cause unpredictable crashes. Always: (1) initialise pointers, (2) set to NULL after freeing.</div>
+    </div>
+  `,
+  'structures': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🏛️ Structures in C</div>
+      <div class="lesson-p">A <strong>structure</strong> (struct) lets you group different data types under one custom name. While an array holds many values of the <em>same</em> type, a struct holds values of <em>different</em> types that logically belong together — like all the details of one person or one product.</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Think of a struct like a <em>student ID card</em>. One card holds your name (text), roll number (integer), CGPA (float), and course (text) — all different types, all describing one person. A struct is your way of creating that ID card template in C!</div>
+      <div class="lesson-h2">Defining and Using a Struct</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string.h&gt;</span>
+
+<span class="cm">// Define the blueprint (like a class template)</span>
+<span class="kw">struct</span> Student {
+    <span class="kw">char</span>  name[<span class="num">50</span>];
+    <span class="kw">int</span>   rollNo;
+    <span class="kw">float</span> cgpa;
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Create a variable of type Student</span>
+    <span class="kw">struct</span> Student s1;
+
+    <span class="cm">// Fill in the fields using dot (.) operator</span>
+    <span class="fn">strcpy</span>(s1.name, <span class="str">"Priya Patil"</span>);
+    s1.rollNo = <span class="num">101</span>;
+    s1.cgpa   = <span class="num">8.75</span>;
+
+    <span class="fn">printf</span>(<span class="str">"Name   : %s\n"</span>, s1.name);
+    <span class="fn">printf</span>(<span class="str">"Roll No: %d\n"</span>, s1.rollNo);
+    <span class="fn">printf</span>(<span class="str">"CGPA   : %.2f\n"</span>, s1.cgpa);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">struct keyword</div><div class="anatomy-card-desc">Defines a new composite data type. Written outside main() so it's available everywhere.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Dot Operator (.)</div><div class="anatomy-card-desc"><code>s1.name</code> accesses the name field of variable s1. Think of it as "s1's name".</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">Arrow Operator (->)</div><div class="anatomy-card-desc">Used with pointers to structs: <code>ptr->name</code> is same as <code>(*ptr).name</code>.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">typedef</div><div class="anatomy-card-desc"><code>typedef struct Student Student;</code> lets you write just <code>Student s1;</code> instead of <code>struct Student s1;</code></div></div>
+      </div>
+      <div class="lesson-h2">Array of Structs</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="cm">// Store 3 students</span>
+<span class="kw">struct</span> Student class1[<span class="num">3</span>];
+class1[<span class="num">0</span>].rollNo = <span class="num">101</span>;
+class1[<span class="num">1</span>].rollNo = <span class="num">102</span>;
+class1[<span class="num">2</span>].rollNo = <span class="num">103</span>;
+<span class="fn">printf</span>(<span class="str">"Second student roll: %d\n"</span>, class1[<span class="num">1</span>].rollNo);</div>
+      <div class="lesson-tip">✅ <strong>Real-world use:</strong> Structs are the foundation of database records, game objects, network packets, and almost every real-world C program of any size.</div>
+      <div class="lesson-note"><strong>⚠️ Important:</strong> You cannot use <code>=</code> to copy strings inside structs directly — always use <code>strcpy()</code> for char arrays within a struct.</div>
+    </div>
+  `,
+  'filehandling': `
+    <div class="lesson-content visible">
+      <div class="lesson-h1">🗂️ File Handling in C</div>
+      <div class="lesson-p">So far our programs lose all data when they finish running. <strong>File handling</strong> lets programs read from and write to files on the hard disk — making data <em>persistent</em>. C uses a <span class="inline-code">FILE</span> pointer and a standard set of functions for this.</div>
+      <div class="lesson-note"><strong>🌏 Vernacular Logic:</strong> Think of file handling like writing in a <em>notebook</em>. Before you write, you open the notebook (<code>fopen</code>). You write or read (<code>fprintf</code> / <code>fscanf</code>). When done, you close it (<code>fclose</code>) — just like putting the notebook back on the shelf. Forgetting to close is like leaving the notebook open in the rain!</div>
+      <div class="lesson-h2">The FILE Pointer & Opening Modes</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">"r" — Read</div><div class="anatomy-card-desc">Open existing file for reading. Fails if file does not exist.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">"w" — Write</div><div class="anatomy-card-desc">Create new file or overwrite existing one for writing. Erases old content!</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">"a" — Append</div><div class="anatomy-card-desc">Open for writing at the END — old content is preserved. Perfect for logs.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">"r+" / "w+"</div><div class="anatomy-card-desc">Open for both reading and writing simultaneously.</div></div>
+      </div>
+      <div class="lesson-h2">Writing to a File</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Step 1: Declare a FILE pointer</span>
+    FILE *fp;
+
+    <span class="cm">// Step 2: Open the file in write mode</span>
+    fp = <span class="fn">fopen</span>(<span class="str">"students.txt"</span>, <span class="str">"w"</span>);
+
+    <span class="cm">// Step 3: Always check if file opened successfully</span>
+    <span class="kw">if</span> (fp == NULL) {
+        <span class="fn">printf</span>(<span class="str">"Error opening file!\n"</span>);
+        <span class="kw">return</span> <span class="num">1</span>;
+    }
+
+    <span class="cm">// Step 4: Write data</span>
+    <span class="fn">fprintf</span>(fp, <span class="str">"Name: Priya Patil\n"</span>);
+    <span class="fn">fprintf</span>(fp, <span class="str">"Roll No: 101\n"</span>);
+    <span class="fn">fprintf</span>(fp, <span class="str">"CGPA: 8.75\n"</span>);
+
+    <span class="cm">// Step 5: ALWAYS close the file</span>
+    <span class="fn">fclose</span>(fp);
+    <span class="fn">printf</span>(<span class="str">"Data written to students.txt\n"</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="lesson-h2">Reading from a File</div>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    FILE *fp;
+    <span class="kw">char</span> line[<span class="num">100</span>];
+
+    fp = <span class="fn">fopen</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>);
+    <span class="kw">if</span> (fp == NULL) { <span class="fn">printf</span>(<span class="str">"File not found!\n"</span>); <span class="kw">return</span> <span class="num">1</span>; }
+
+    <span class="cm">// fgets reads one line at a time</span>
+    <span class="kw">while</span> (<span class="fn">fgets</span>(line, <span class="kw">sizeof</span>(line), fp) != NULL) {
+        <span class="fn">printf</span>(<span class="str">"%s"</span>, line);  <span class="cm">// line already has \n</span>
+    }
+    <span class="fn">fclose</span>(fp);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</div>
+      <div class="anatomy-grid">
+        <div class="anatomy-card"><div class="anatomy-card-label">fopen()</div><div class="anatomy-card-desc">Opens a file and returns a FILE pointer. Returns NULL on failure — always check!</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">fprintf()</div><div class="anatomy-card-desc">Like printf() but writes to a file instead of the screen. Same format specifiers.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">fgets()</div><div class="anatomy-card-desc">Reads one line safely from a file. Stops at newline or EOF. Safer than fscanf for text.</div></div>
+        <div class="anatomy-card"><div class="anatomy-card-label">fclose()</div><div class="anatomy-card-desc">Flushes and closes the file. Not calling it can corrupt the file or lose data!</div></div>
+      </div>
+      <div class="lesson-tip">✅ <strong>Golden Rule:</strong> Every <code>fopen()</code> must be paired with an <code>fclose()</code> — just like every opening brace { must have a closing brace }.</div>
+      <div class="lesson-note"><strong>⚠️ Simulation Note:</strong> File I/O cannot be simulated in the browser. Copy this code into a real C compiler (GCC, Dev-C++, or Code::Blocks) to see files being created on disk.</div>
+    </div>
   `
 };
 
@@ -1300,6 +1549,64 @@ int main() {
     }
     
     return 0;
+}`,
+  arrays: `#include <stdio.h>
+
+int main() {
+    // Declare and initialise an array of 5 marks
+    int marks[5] = {90, 85, 78, 92, 88};
+    int sum = 0;
+    float average;
+
+    printf("=== Student Marks ===\\n");
+
+    // Loop through every element
+    for (int i = 0; i < 5; i++) {
+        printf("Student %d : %d\\n", i + 1, marks[i]);
+        sum += marks[i];
+    }
+
+    average = (float)sum / 5;
+    printf("\\nTotal   : %d\\n", sum);
+    printf("Average : %.2f\\n", average);
+
+    // Find the highest mark
+    int highest = marks[0];
+    for (int i = 1; i < 5; i++) {
+        if (marks[i] > highest)
+            highest = marks[i];
+    }
+    printf("Highest : %d\\n", highest);
+
+    return 0;
+}`,
+  pointers: `#include <stdio.h>
+
+int main() {
+    // Normal variable
+    int age = 21;
+    float salary = 45000.50;
+
+    // Pointer variables — store addresses
+    int   *pAge    = &age;
+    float *pSalary = &salary;
+
+    printf("=== Pointer Demo ===\\n\\n");
+
+    // Print value directly
+    printf("age    = %d\\n", age);
+    printf("salary = %.2f\\n\\n", salary);
+
+    // Print via pointer (dereferencing)
+    printf("*pAge    = %d\\n", *pAge);
+    printf("*pSalary = %.2f\\n\\n", *pSalary);
+
+    // Modify original through pointer
+    *pAge = 25;
+    printf("After *pAge = 25:\\n");
+    printf("age is now: %d\\n", age);
+
+    return 0;
 }`
 };
 
@@ -1336,8 +1643,28 @@ const coachKnowledge = {
     followup: "Click '🔍 Analyze' to let me check your current code!"
   },
   'next': {
-    response: `Great attitude — always keep moving forward! 🚀\n\n<div class="scaffold-step">🔹 Based on your progress, here's your learning path:\n1. ✅ Hello World → Done!\n2. 📦 Variables & Types\n3. 🖨️ printf & scanf\n4. 🔀 if / else conditions\n5. 🔁 for loops\n6. ⚙️ Functions</div>\n\nClick on any topic in the <strong>left sidebar</strong> to jump to that lesson.\n\nOr click <strong>'Load Template'</strong> in the sidebar to practice with a real example!`,
+    response: `Great attitude — always keep moving forward! 🚀\n\n<div class="scaffold-step">🔹 Based on your progress, here's your learning path:\n1. ✅ Hello World → Done!\n2. 📦 Variables & Types\n3. 🖨️ printf & scanf\n4. 🔀 if / else conditions\n5. 🔁 for loops\n6. ⚙️ Functions\n7. 📊 Arrays\n8. 🔤 Strings\n9. 🎯 Pointers\n10. 🏛️ Structures\n11. 🗂️ File Handling</div>\n\nClick on any topic in the <strong>left sidebar</strong> to jump to that lesson!\n\nOr click an <strong>Arrays / Pointers template</strong> in the sidebar to practice with real examples!`,
     followup: "Which topic would you like to explore next?"
+  },
+  'array': {
+    response: `<strong>Arrays</strong> are collections of same-type values stored under one name. 📊\n\n<div class="scaffold-step">🔹 Vernacular Logic: Like a row of numbered lockers (0, 1, 2, ...). The locker block is the array; each locker is an element. Always numbered from ZERO.</div>\n\n<div class="scaffold-step">🔹 Step 1 — Declare:\n<code>int marks[5];</code>  ← 5 int slots</div>\n\n<div class="scaffold-step">🔹 Step 2 — Initialise:\n<code>int marks[5] = {90, 85, 78, 92, 88};</code></div>\n\n<div class="scaffold-step">🔹 Step 3 — Access with index:\n<code>marks[0]</code> = 90 (first!)\n<code>marks[4]</code> = 88 (last!)</div>\n\n<strong>Loop through an array:</strong>\n<code>for (int i = 0; i &lt; 5; i++)\n    printf("%d ", marks[i]);</code>\n\n<strong>⚠️ Common mistake:</strong> Accessing <code>marks[5]</code> on a 5-element array is out of bounds — always stay within 0 to size−1!`,
+    followup: "Try loading the Arrays template and change the values — can you also find the minimum mark?"
+  },
+  'string': {
+    response: `In C, a <strong>string is a char array</strong> ending with <code>'\\'0'</code> (null terminator)! 🔤\n\n<div class="scaffold-step">🔹 Vernacular Logic: The null character <code>'\\0'</code> is like writing "iti" (ಇತಿ) at the end of a letter — it signals "the string ends here." Without it, C would keep reading random memory!</div>\n\n<div class="scaffold-step">🔹 Declaring:\n<code>char name[20] = "Shivakumar";</code>\n<code>char city[] = "Belagavi";</code></div>\n\n<div class="scaffold-step">🔹 Key string functions (need #include &lt;string.h&gt;):\n• <code>strlen(s)</code> → length\n• <code>strcpy(dest, src)</code> → copy\n• <code>strcat(dest, src)</code> → join\n• <code>strcmp(a, b)</code> → compare (returns 0 if equal)</div>\n\n<strong>⚠️ Never use ==</strong> to compare strings. Use <code>strcmp()</code> instead!`,
+    followup: "Can you write a program that asks for your name and prints its length using strlen()?"
+  },
+  'pointer': {
+    response: `A <strong>pointer</strong> stores the <em>memory address</em> of another variable — not the value, but the location! 🎯\n\n<div class="scaffold-step">🔹 Vernacular Logic: Think of a pointer as a chit of paper with someone's home address. The chit isn't the house — but it tells you exactly where to find it. <code>&x</code> gives you the address; <code>*p</code> takes you there.</div>\n\n<div class="scaffold-step">🔹 Step 1 — Declare a pointer:\n<code>int *p;</code>  ← p will hold the address of an int</div>\n\n<div class="scaffold-step">🔹 Step 2 — Assign an address:\n<code>int age = 21;\nint *p = &age;  // p now points to age</code></div>\n\n<div class="scaffold-step">🔹 Step 3 — Use it:\n<code>printf("%d", *p);  // prints 21\n*p = 25;            // changes age to 25!</code></div>\n\n<strong>⚠️ Rule:</strong> Always initialise a pointer before using it. An uninitialised pointer is called a "wild pointer" — it's dangerous!`,
+    followup: "Try the Pointers template! After running it, can you add a second pointer for salary and print it?"
+  },
+  'struct': {
+    response: `A <strong>struct</strong> groups different data types into one custom type — like a record or form! 🏛️\n\n<div class="scaffold-step">🔹 Vernacular Logic: Think of a struct as a student ID card — one card holds your name (char), roll number (int), and CGPA (float). Different types, all describing ONE entity.</div>\n\n<div class="scaffold-step">🔹 Step 1 — Define the blueprint:\n<code>struct Student {\n    char name[50];\n    int rollNo;\n    float cgpa;\n};</code></div>\n\n<div class="scaffold-step">🔹 Step 2 — Create a variable:\n<code>struct Student s1;</code></div>\n\n<div class="scaffold-step">🔹 Step 3 — Access fields with dot (.):\n<code>s1.rollNo = 101;\nstrcpy(s1.name, "Priya");\nprintf("%s", s1.name);</code></div>\n\n<strong>💡 Tip:</strong> Use <code>-></code> instead of <code>.</code> when you have a pointer to a struct: <code>ptr->name</code>`,
+    followup: "Can you create a struct for a Book with title, author, and price fields?"
+  },
+  'file': {
+    response: `<strong>File handling</strong> makes your program's data persistent — it survives after the program closes! 🗂️\n\n<div class="scaffold-step">🔹 Vernacular Logic: Like using a notebook — open it (fopen), write or read, then close it (fclose). Forgetting to close is like leaving a notebook in the rain — data may be lost!</div>\n\n<div class="scaffold-step">🔹 The 4 Steps of File Handling:\n1. <code>FILE *fp;</code>          ← Declare FILE pointer\n2. <code>fp = fopen("file.txt", "w");</code>  ← Open\n3. <code>fprintf(fp, "data");</code>         ← Write\n4. <code>fclose(fp);</code>                  ← Close</div>\n\n<div class="scaffold-step">🔹 Opening Modes:\n• <code>"r"</code> → Read only\n• <code>"w"</code> → Write (overwrites!)\n• <code>"a"</code> → Append (adds to end)\n• <code>"r+"</code> → Read + Write</div>\n\n<strong>⚠️ Always check:</strong> If fopen returns NULL, the file couldn't be opened. Always handle this error!`,
+    followup: "Can you modify the file writing example to also store a student's roll number and CGPA in the file?"
   }
 };
 
@@ -1500,13 +1827,13 @@ function getCoachResponse(query) {
     return `I'm here to help! 🤝\n\n<div class="scaffold-step">🔹 Let's debug together:\n1. What were you trying to do?\n2. What did you expect to happen?\n3. What actually happened?</div>\n\nPaste your code or click <strong>🔍 Analyze</strong> and I'll guide you step by step!`;
   }
   if (q.includes('loop') || q.includes('for') || q.includes('while') || q.includes('repeat')) {
-    return coachKnowledge['next'].response.replace('your progress', 'loops topic') + `\n\n<div class="scaffold-step">Check the <strong>🔁 Loops</strong> section in the sidebar!</div>`;
+    return `<strong>Loops</strong> repeat a block of code!\n\n<div class="scaffold-step">🔹 for loop — when you know the count:\n<code>for (int i = 0; i &lt; 5; i++) { ... }</code></div>\n\n<div class="scaffold-step">🔹 while loop — until condition is false:\n<code>while (condition) { ... }</code></div>\n\nCheck the <strong>🔁 Loops</strong> lesson in the sidebar for full examples!`;
   }
   if (q.includes('function') || q.includes('def')) {
-    return `<strong>Functions</strong> in C are reusable blocks of code!\n\n<div class="scaffold-step">🔹 Structure:\n<code>returnType functionName(parameters) {\n    // code\n    return value;\n}</code></div>\n\nCheck the <strong>⚙️ Functions</strong> lesson in the sidebar for detailed examples!`;
+    return `<strong>Functions</strong> in C are reusable named blocks of code!\n\n<div class="scaffold-step">🔹 Structure:\n<code>returnType name(params) {\n    // code\n    return value;\n}</code></div>\n\nCheck the <strong>⚙️ Functions</strong> lesson in the sidebar!`;
   }
-  if (q.includes('struct') || q.includes('array') || q.includes('pointer')) {
-    return `That's a more advanced topic — great that you're curious! 🌟\n\n<div class="scaffold-step">🔹 Learning path recommendation:\nMake sure you're comfortable with:\n✅ Variables & Types\n✅ printf & scanf\n✅ if/else\n✅ Loops\n...before diving into arrays/structs/pointers</div>\n\nWhich of those do you want to solidify first?`;
+  if (q.includes('memory') || q.includes('malloc') || q.includes('dynamic')) {
+    return `Dynamic memory allocation is an advanced topic that builds on pointers! 🧠\n\n<div class="scaffold-step">🔹 Make sure you first understand:\n✅ Pointers\n✅ Arrays\n...then malloc/free will make sense.</div>\n\nStart with the <strong>🎯 Pointers</strong> lesson first!`;
   }
   return `Good question! 🤔 Let me scaffold your thinking:\n\n<div class="scaffold-step">🔹 Ask yourself:\n• What do you already know about this?\n• What part is confusing you?\n• Have you tried writing any code for this?</div>\n\nTry to write something — even if it's wrong, I'll help you fix it! That's how real learning happens. 💪\n\nOr use the quick-prompt buttons above for common topics!`;
 }
@@ -1750,7 +2077,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Welcome message
   setTimeout(() => {
-    addCoachMessage(`👋 <strong>Welcome to SHIVA's C-SETU!</strong>\n\nI'm your Scaffolding Coach — I'm here to give you <em>just enough help</em> to figure things out yourself (that's how real learning works! 🧠)\n\n<div class="scaffold-step">🔹 Here's your starting mission:\n1. Read the "Getting Started" lesson on the left\n2. Load the "Hello World" template\n3. Click "▶ Simulate Run"\n4. Ask me anything you don't understand!</div>\n\nReady? Let's begin! 🚀`);
+    addCoachMessage(`👋 <strong>Welcome to SHIVA's C-SETU!</strong>\n\nI'm your Scaffolding Coach — I'm here to give you <em>just enough help</em> to figure things out yourself (that's how real learning works! 🧠)\n\n<div class="scaffold-step">🔹 Here's your starting mission:\n1. Read the "Getting Started" lesson on the left\n2. Load the "Hello World" template\n3. Click "▶ Simulate Run"\n4. Ask me anything you don't understand!</div>\n\n<div class="scaffold-step">📚 13 Modules available:\nBasics → Arrays → Strings → Pointers → Structures → File Handling</div>\n\nReady? Let's begin! 🚀`);
   }, 500);
 });
 </script>
