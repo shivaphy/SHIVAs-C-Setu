@@ -517,6 +517,31 @@
     box-shadow: 0 2px 8px rgba(16,185,129,0.3);
   }
   .run-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+  .run-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .engine-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    padding: 4px 8px;
+    border-radius: 20px;
+    cursor: default;
+    letter-spacing: 0.3px;
+  }
+  .engine-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: background 0.3s;
+  }
+  .engine-dot.online { background: var(--success); animation: pulse-dot 2s infinite; }
+  .engine-dot.offline { background: var(--accent3); }
+  .engine-dot.error { background: var(--error); }
   .hint-btn {
     display: flex;
     align-items: center;
@@ -549,7 +574,7 @@
 
   /* Output */
   .output-pane {
-    height: 130px;
+    height: 170px;
     background: #f5f8ff;
     border-top: 1px solid var(--border);
     flex-shrink: 0;
@@ -568,6 +593,7 @@
     color: var(--text-muted);
     letter-spacing: 1px;
     text-transform: uppercase;
+    flex-shrink: 0;
   }
   #output-text {
     flex: 1;
@@ -578,9 +604,69 @@
     overflow-y: auto;
     line-height: 1.6;
     white-space: pre-wrap;
+    word-break: break-all;
   }
   #output-text.error { color: var(--error); }
   #output-text.info { color: #1d4ed8; }
+  #output-text.running { color: var(--accent3); }
+
+  /* stdin row (live) */
+  .stdin-row {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    background: #fffbf0;
+    padding: 4px 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .stdin-prompt { font-family: var(--font-mono); font-size: 11px; color: var(--accent3); font-weight: 700; flex-shrink: 0; }
+  .stdin-input {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    border: 1px solid rgba(217,119,6,0.3);
+    border-radius: 5px;
+    padding: 3px 8px;
+    background: #fffdf5;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .stdin-input:focus { border-color: var(--accent3); }
+  .stdin-send {
+    padding: 3px 10px;
+    background: var(--accent3);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    cursor: pointer;
+  }
+
+  /* preset stdin row (always visible) */
+  .stdin-pre-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: #f0f4ff;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .stdin-preset-input {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 8px;
+    background: white;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .stdin-preset-input:focus { border-color: var(--accent); }
 
   /* ── COACH PANEL ── */
   .coach-panel {
@@ -965,17 +1051,32 @@ int main() {
 }</textarea>
         </div>
         <div class="editor-toolbar">
-          <button class="run-btn" onclick="simulateRun()">▶ Simulate Run</button>
+          <button class="run-btn" id="run-btn" onclick="runCode()">▶ Run Code</button>
           <button class="hint-btn" onclick="askForHint()">💡 Get Hint</button>
-          <span style="font-size:10.5px;color:var(--text-muted)">⚠️ Visual simulation only</span>
+          <div class="engine-badge" id="engine-badge" title="Execution engine status">
+            <span class="engine-dot" id="engine-dot"></span>
+            <span id="engine-label">Checking engine…</span>
+          </div>
           <button class="clear-btn" onclick="clearEditor()">✕ Clear</button>
         </div>
         <div class="output-pane">
           <div class="output-header">
-            <span>📟 Output Console</span>
-            <button class="btn-sm" onclick="clearOutput()" style="padding:2px 7px;font-size:9.5px">Clear</button>
+            <span>📟 Terminal Console</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span id="exec-time" style="font-size:9px;color:var(--text-muted)"></span>
+              <button class="btn-sm" onclick="clearOutput()" style="padding:2px 7px;font-size:9.5px">Clear</button>
+            </div>
           </div>
-          <div id="output-text" class="info">// Output will appear here after simulation...</div>
+          <div id="output-text" class="info">// Click ▶ Run Code to compile and execute your C program...</div>
+          <div class="stdin-row" id="stdin-row" style="display:none">
+            <span class="stdin-prompt">stdin ▶</span>
+            <input type="text" id="stdin-input" class="stdin-input" placeholder="Type input and press Enter…" autocomplete="off"/>
+            <button class="stdin-send" onclick="sendStdin()">Send</button>
+          </div>
+          <div class="stdin-pre-row">
+            <label style="font-size:10px;color:var(--text-muted);font-weight:600">📥 Pre-set stdin:</label>
+            <input type="text" id="stdin-preset" class="stdin-preset-input" placeholder="e.g.  5  (for scanf input)" autocomplete="off"/>
+          </div>
         </div>
       </div>
     </div>
@@ -1692,85 +1793,293 @@ function analyzeCodeForHints(code) {
 }
 
 // ══════════════════════════════════════════
-//  SIMULATE RUN
+//  EXECUTION ENGINE — Judge0 CE + Smart Fallback
 // ══════════════════════════════════════════
-function simulateRun() {
-  const code = document.getElementById('code-editor').value;
+
+// Judge0 CE public endpoint — no API key needed for basic usage
+const JUDGE0_URL = 'https://ce.judge0.com/submissions';
+const JUDGE0_C_LANG = 50;   // GCC 9.2.0 (C language)
+let engineOnline = false;
+let engineChecked = false;
+
+// ── Engine health check ──
+async function checkEngine() {
+  const dot   = document.getElementById('engine-dot');
+  const label = document.getElementById('engine-label');
+  try {
+    const r = await fetch('https://ce.judge0.com/about', { method: 'GET', mode: 'cors' });
+    if (r.ok || r.status === 200) {
+      engineOnline = true;
+      dot.className   = 'engine-dot online';
+      label.textContent = 'GCC Compiler · Online';
+    } else { throw new Error('not ok'); }
+  } catch (_) {
+    engineOnline = false;
+    dot.className   = 'engine-dot offline';
+    label.textContent = 'Smart Simulator · Offline';
+  }
+  engineChecked = true;
+}
+
+// ── Main entry point ──
+async function runCode() {
+  const code = document.getElementById('code-editor').value.trim();
+  if (!code) { writeOutput('// Please write some C code first!', 'info'); return; }
+
+  const runBtn = document.getElementById('run-btn');
+  runBtn.disabled = true;
+  runBtn.textContent = '⏳ Compiling…';
+
+  clearOutput();
+  writeOutput('⏳  Compiling and running your C program…\n', 'running');
+
+  const stdin = document.getElementById('stdin-preset').value || '';
+
+  if (engineOnline) {
+    await runWithJudge0(code, stdin);
+  } else {
+    runWithSimulator(code, stdin);
+  }
+
+  runBtn.disabled = false;
+  runBtn.textContent = '▶ Run Code';
+}
+
+// ── Judge0 CE real compiler ──
+async function runWithJudge0(code, stdin) {
   const out = document.getElementById('output-text');
-  out.className = '';
+  const timeEl = document.getElementById('exec-time');
 
-  // Extract printf strings
-  const lines = [];
-  const printfRegex = /printf\s*\(\s*"((?:[^"\\]|\\.)*)"\s*(?:,\s*([^)]+))?\)/g;
-  let match;
-  let found = false;
-
-  while ((match = printfRegex.exec(code)) !== null) {
-    found = true;
-    let str = match[1];
-    const args = match[2] ? match[2].split(',').map(s => s.trim()) : [];
-
-    str = str.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\\\/g, '\\');
-
-    // Replace format specifiers
-    let argIdx = 0;
-    str = str.replace(/%[diouxXeEfgGcs%]/g, (spec) => {
-      if (spec === '%%') return '%';
-      const arg = args[argIdx++] || '?';
-      // Try to evaluate simple expressions
-      try {
-        const val = evaluateExpr(arg, code);
-        return val !== null ? val : arg;
-      } catch(e) { return arg; }
+  try {
+    // Step 1: Submit
+    const submitRes = await fetch(`${JUDGE0_URL}?base64_encoded=true&wait=false`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        source_code: btoa(unescape(encodeURIComponent(code))),
+        language_id: JUDGE0_C_LANG,
+        stdin:       btoa(unescape(encodeURIComponent(stdin))),
+        cpu_time_limit: 5,
+        memory_limit:   131072
+      })
     });
 
+    if (!submitRes.ok) throw new Error(`Submit failed: ${submitRes.status}`);
+    const { token } = await submitRes.json();
+    if (!token) throw new Error('No token received from Judge0');
+
+    // Step 2: Poll for result (max 15s)
+    let result = null;
+    for (let i = 0; i < 30; i++) {
+      await sleep(500);
+      const pollRes = await fetch(
+        `${JUDGE0_URL}/${token}?base64_encoded=true&fields=stdout,stderr,compile_output,status,time,memory`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      if (!pollRes.ok) continue;
+      const data = await pollRes.json();
+      if (data.status && data.status.id >= 3) { result = data; break; }
+    }
+
+    if (!result) throw new Error('Execution timed out waiting for Judge0');
+
+    const decode = b64 => {
+      if (!b64) return '';
+      try { return decodeURIComponent(escape(atob(b64))); } catch(_) { return atob(b64); }
+    };
+
+    const stdout  = decode(result.stdout);
+    const stderr  = decode(result.stderr);
+    const compOut = decode(result.compile_output);
+    const status  = result.status;
+    const execMs  = result.time ? `${(parseFloat(result.time)*1000).toFixed(0)} ms` : '';
+
+    if (execMs) timeEl.textContent = `⏱ ${execMs}`;
+
+    // status.id: 3=Accepted, 4=Wrong Answer, 5=TLE, 6=MLE, 11=RE, 13=Internal Error
+    // status.id: 6=Compilation Error
+    if (status.id === 6) {
+      // Compilation error
+      const errText = compOut || stderr || 'Unknown compilation error';
+      writeOutput('', 'error');
+      appendOutput('❌  Compilation Error\n' + '─'.repeat(40) + '\n');
+      appendOutput(formatCompilerErrors(errText));
+      addCoachMessage(buildErrorCoachMsg(errText));
+    } else if (status.id >= 7 && status.id <= 12) {
+      // Runtime error / TLE / MLE
+      const rte = stderr || stdout || '';
+      writeOutput('', 'error');
+      appendOutput(`❌  Runtime Error — ${status.description}\n` + '─'.repeat(40) + '\n');
+      if (rte) appendOutput(rte);
+      addCoachMessage(`⚠️ Your program crashed at runtime!\n\n<div class="scaffold-step">🔹 Status: <strong>${status.description}</strong>\n${rte ? '\nError message:\n' + rte.substring(0,200) : ''}</div>\n\n<div class="scaffold-step">🔹 Common runtime errors:\n• Division by zero\n• Array out of bounds\n• NULL pointer dereference\n• Stack overflow (infinite recursion)</div>`);
+    } else {
+      // Success (or wrong answer — still show output)
+      writeOutput('', '');
+      if (stdout) {
+        appendOutput(stdout);
+      } else {
+        appendOutput('(Program executed successfully with no output)\n');
+      }
+      if (stderr) {
+        appendOutput('\n── stderr ──\n' + stderr);
+      }
+      appendOutput(`\n── Exited · ${status.description} · ${execMs} ──`);
+      addCoachMessage(`✅ Your program ran on a real GCC compiler!\n\n<div class="scaffold-step">🔹 Status: <strong>${status.description}</strong> in ${execMs}\n\nCheck the output above. Does it match what you expected?</div>\n\nIf something looks wrong, ask me — I'll help you trace through the logic! 🎯`);
+    }
+
+  } catch (err) {
+    // Network failure — fall back to simulator
+    writeOutput('', 'info');
+    appendOutput(`⚠️  Could not reach compiler (${err.message})\n`);
+    appendOutput('    Falling back to Smart Simulator…\n\n');
+    runWithSimulator(document.getElementById('code-editor').value, stdin);
+  }
+}
+
+// ── Format GCC error messages for readability ──
+function formatCompilerErrors(raw) {
+  if (!raw) return '';
+  return raw
+    .split('\n')
+    .map(line => {
+      // Highlight error type
+      if (/error:/.test(line))   return '🔴 ' + line;
+      if (/warning:/.test(line)) return '🟡 ' + line;
+      if (/note:/.test(line))    return '🔵 ' + line;
+      return '   ' + line;
+    })
+    .join('\n');
+}
+
+// ── Build a coach message from compiler errors ──
+function buildErrorCoachMsg(errText) {
+  const lines = errText.split('\n').filter(l => l.includes('error:')).slice(0, 3);
+  let tips = '';
+  const joined = errText.toLowerCase();
+
+  if (joined.includes('expected') && joined.includes(';'))
+    tips += '\n• Missing semicolon <code>;</code> at the end of a statement';
+  if (joined.includes('undeclared'))
+    tips += '\n• Variable or function used before declaring it';
+  if (joined.includes('implicit declaration'))
+    tips += '\n• Missing <code>#include</code> for a function (e.g. <code>#include &lt;stdio.h&gt;</code>)';
+  if (joined.includes('control reaches end'))
+    tips += '\n• Function is missing a <code>return</code> statement';
+  if (joined.includes('incompatible') || joined.includes('passing argument'))
+    tips += '\n• Wrong data type passed to a function';
+  if (joined.includes('lvalue required'))
+    tips += '\n• Cannot assign to a constant or expression — check your <code>=</code> vs <code>==</code>';
+
+  const errSummary = lines.length ? lines.map(l => `<code>${l.trim().substring(0,80)}</code>`).join('<br>') : 'Compiler found errors in your code.';
+  return `🔴 <strong>Compilation Error!</strong>\n\nThe GCC compiler found these errors:\n${errSummary}\n\n<div class="scaffold-step">🔹 Likely causes:${tips || '\n• Read the error message above carefully — it shows the line number!'}</div>\n\n<div class="scaffold-step">🔹 Debugging steps:\n1. Look at the <strong>line number</strong> in the error (e.g. <code>main.c:5:3</code> means line 5)\n2. Fix ONE error at a time — fixing the first often fixes others\n3. Click ▶ Run Code again to check</div>`;
+}
+
+// ── Smart Fallback Simulator ──
+function runWithSimulator(code, presetStdin) {
+  const lines = [];
+  const stdinTokens = presetStdin.trim() ? presetStdin.trim().split(/\s+/) : [];
+  let stdinIdx = 0;
+  let found = false;
+
+  // Basic structural check
+  if (!code.includes('main')) {
+    writeOutput('❌  Error: No main() function found.\nEvery C program must have: int main() { ... }', 'error'); return;
+  }
+  if (!code.includes('#include')) {
+    writeOutput('⚠️  Warning: No #include found. Add #include <stdio.h> for printf/scanf.', 'error'); return;
+  }
+
+  // Extract variable declarations
+  const varMap = {};
+  const declRegex = /(?:int|float|double)\s+(\w+)\s*=\s*([^;,\n]+)/g;
+  let m;
+  while ((m = declRegex.exec(code)) !== null) {
+    try { varMap[m[1]] = eval(m[2]); } catch(_) {}
+  }
+
+  // Intercept scanf — fill from presetStdin
+  const scanfRegex = /scanf\s*\(\s*"([^"]+)"\s*,\s*&\s*(\w+)/g;
+  while ((m = scanfRegex.exec(code)) !== null) {
+    const varName = m[2];
+    const fmt     = m[1];
+    const tok = stdinTokens[stdinIdx++];
+    if (tok !== undefined) {
+      if (fmt.includes('f')) varMap[varName] = parseFloat(tok) || 0;
+      else                   varMap[varName] = parseInt(tok)   || 0;
+    }
+  }
+
+  // Extract printf statements
+  const printfRegex = /printf\s*\(\s*"((?:[^"\\]|\\.)*)"\s*((?:,\s*[^)]+)?)\)/g;
+  while ((m = printfRegex.exec(code)) !== null) {
+    found = true;
+    let str  = m[1];
+    const rawArgs = m[2] ? m[2].replace(/^,/, '').split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    str = str.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\\\/g, '\\').replace(/%%/g, '%');
+
+    let argIdx = 0;
+    str = str.replace(/%(-?\d*\.?\d*)?[diouxXeEfgGcs]/g, (spec) => {
+      const arg = rawArgs[argIdx++] || '?';
+      try {
+        // resolve via varMap
+        let val = arg;
+        if (varMap.hasOwnProperty(arg)) val = varMap[arg];
+        else {
+          // try simple arithmetic
+          let expr = arg;
+          for (const [k, v] of Object.entries(varMap))
+            expr = expr.replace(new RegExp('\\b' + k + '\\b', 'g'), v);
+          const ev = eval(expr);
+          if (ev !== undefined && ev !== null) val = ev;
+        }
+        if (spec.includes('f') || spec.includes('e') || spec.includes('g')) {
+          const prec = (spec.match(/\.(\d+)/) || [,'2'])[1];
+          return parseFloat(val).toFixed(parseInt(prec));
+        }
+        if (spec.includes('d') || spec.includes('i')) return Math.trunc(parseFloat(val)).toString();
+        if (spec.includes('c') && typeof val === 'number') return String.fromCharCode(val);
+        return String(val);
+      } catch(_) { return arg; }
+    });
     lines.push(str);
   }
 
   if (!found) {
-    if (!code.includes('printf')) {
-      out.className = 'info';
-      out.textContent = '// No printf statements found in your code.\n// Add printf("Hello!\\n"); to see output here.';
-    } else {
-      out.className = '';
-      out.textContent = '(program ran — no output captured in simulation)';
-    }
+    writeOutput('// No printf() found.\n// Add printf("Hello!\\n"); to produce output.', 'info');
     return;
   }
 
-  const hasError = !code.includes('main') || !code.includes('#include');
-  if (hasError) {
-    out.className = 'error';
-    out.textContent = '❌ Error: Missing #include or main() function.\nFix the structure and try again.';
-    return;
-  }
+  let output = lines.join('');
+  writeOutput('', '');
+  appendOutput(output || '(Program ran with no output)');
+  if (presetStdin) appendOutput(`\n── Used stdin: "${presetStdin}" ──`);
+  appendOutput('\n── Simulation complete (Smart Simulator) ──');
 
-  out.className = '';
-  out.textContent = lines.join('');
-  if (!out.textContent.trim()) out.textContent = '(program ran silently)';
-
-  // Add to coach
-  addCoachMessage("Nice! Your program ran. Check the output below. Does it match what you expected? If not, I can help you understand why!", 'coach');
+  addCoachMessage(`Your program ran in Smart Simulator mode. 🖥️\n\n<div class="scaffold-step">🔹 The output shown is based on parsing your printf statements.\nFor fully accurate execution (loops, conditions, recursion), connect to the internet and the GCC compiler will be used automatically!</div>\n\nDoes the output look right? Ask me if anything is unexpected!`);
 }
 
-function evaluateExpr(expr, code) {
-  // Try to find variable declarations
-  const varMap = {};
-  const declRegex = /(?:int|float|double|char)\s+(\w+)\s*=\s*([^;]+);/g;
-  let m;
-  while ((m = declRegex.exec(code)) !== null) {
-    try { varMap[m[1]] = eval(m[2]); } catch(e) {}
-  }
-  // Replace vars in expr
-  let evExpr = expr;
-  for (const [k, v] of Object.entries(varMap)) {
-    evExpr = evExpr.replace(new RegExp('\\b' + k + '\\b', 'g'), v);
-  }
-  try {
-    const val = eval(evExpr);
-    if (typeof val === 'number') return Number.isInteger(val) ? val : val.toFixed(2);
-    return val;
-  } catch(e) { return null; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// stdin live send (for future interactive mode placeholder)
+function sendStdin() {
+  const val = document.getElementById('stdin-input').value;
+  document.getElementById('stdin-input').value = '';
+  appendOutput('\n> ' + val);
+}
+
+// ── Output helpers ──
+function writeOutput(text, cls) {
+  const el = document.getElementById('output-text');
+  el.className = cls || '';
+  el.textContent = text;
+  document.getElementById('exec-time').textContent = '';
+}
+
+function appendOutput(text) {
+  const el = document.getElementById('output-text');
+  el.textContent += text;
+  el.scrollTop = el.scrollHeight;
 }
 
 // ══════════════════════════════════════════
@@ -1873,12 +2182,9 @@ function askForHint() {
 function analyzeCode() {
   const code = document.getElementById('code-editor').value;
   const hints = analyzeCodeForHints(code);
-  let out = '';
-  hints.forEach(h => out += h.msg + '\n');
-  const outputEl = document.getElementById('output-text');
-  outputEl.className = hints.some(h => h.type === 'error') ? 'error' : hints.some(h => h.type === 'warning') ? 'info' : '';
-  outputEl.textContent = '🔍 Code Analysis:\n' + out;
-
+  const hasError = hints.some(h => h.type === 'error');
+  const hasWarn  = hints.some(h => h.type === 'warning');
+  writeOutput('🔍 Code Analysis:\n' + hints.map(h => h.msg).join('\n'), hasError ? 'error' : hasWarn ? 'info' : '');
   const msg = hints.map(h => h.msg).join('\n\n');
   addCoachMessage(`I've analyzed your code! Here's what I found:\n\n${msg}\n\n<div class="scaffold-step">🔹 Work through these one by one. Which one do you want to tackle first?</div>`);
 }
@@ -1913,7 +2219,7 @@ function loadTemplate(name) {
   if (templates[name]) {
     document.getElementById('code-editor').value = templates[name];
     updateLineNumbers();
-    showToast('Template loaded! ▶ Click Simulate Run to test it.');
+    showToast('Template loaded! ▶ Click Run Code to compile it.');
     addCoachMessage(`Great choice! I've loaded the <strong>${name}</strong> template. Read through it carefully — can you explain what each line does? Ask me about any part you don't understand! 🎯`);
   }
 }
@@ -1927,9 +2233,8 @@ function clearEditor() {
 }
 
 function clearOutput() {
-  const o = document.getElementById('output-text');
-  o.className = 'info';
-  o.textContent = '// Output cleared...';
+  writeOutput('// Output cleared…', 'info');
+  document.getElementById('exec-time').textContent = '';
 }
 
 // ══════════════════════════════════════════
@@ -2075,9 +2380,12 @@ window.addEventListener('DOMContentLoaded', () => {
   showModule('getting-started');
   updateLineNumbers();
 
+  // Check compiler engine
+  checkEngine();
+
   // Welcome message
   setTimeout(() => {
-    addCoachMessage(`👋 <strong>Welcome to SHIVA's C-SETU!</strong>\n\nI'm your Scaffolding Coach — I'm here to give you <em>just enough help</em> to figure things out yourself (that's how real learning works! 🧠)\n\n<div class="scaffold-step">🔹 Here's your starting mission:\n1. Read the "Getting Started" lesson on the left\n2. Load the "Hello World" template\n3. Click "▶ Simulate Run"\n4. Ask me anything you don't understand!</div>\n\n<div class="scaffold-step">📚 13 Modules available:\nBasics → Arrays → Strings → Pointers → Structures → File Handling</div>\n\nReady? Let's begin! 🚀`);
+    addCoachMessage(`👋 <strong>Welcome to SHIVA's C-SETU!</strong>\n\nI'm your Scaffolding Coach — I'm here to give you <em>just enough help</em> to figure things out yourself (that's how real learning works! 🧠)\n\n<div class="scaffold-step">🔹 Here's your starting mission:\n1. Read the "Getting Started" lesson on the left\n2. Load the "Hello World" template\n3. Click "▶ Run Code" — your program will compile with real GCC!\n4. Ask me anything you don't understand!</div>\n\n<div class="scaffold-step">📚 13 Modules available:\nBasics → Arrays → Strings → Pointers → Structures → File Handling</div>\n\nReady? Let's begin! 🚀`);
   }, 500);
 });
 </script>
